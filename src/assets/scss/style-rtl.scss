@@ -1,0 +1,23 @@
+ @import "variables";
+ @import "general";
+ @import "bootstrap-custom";
+ @import "components";
+ @import "helper";
+ @import "menu";
+ @import "home";
+ @import "features";
+ @import "testi";
+ @import "team";
+ @import "blog";
+ @import "contact";
+ @import "footer";
+ @import "switcher";
+
+// RTL Version
+@import "rtl/bootstrap-custom-rtl";
+@import "rtl/components-rtl";
+@import "rtl/general-rtl";
+@import "rtl/helper-rtl";
+@import "rtl/menu-rtl";
+@import "rtl/custom-rtl";
+@import "rtl/form-select"
