@@ -126,8 +126,8 @@ export default function Navbar({ navlight, gradient }) {
               navlight ? "nav-light" : ""
             }`}
           >
-            <li className={manu === "/" ? "active" : ""}>
-              <Link href="/submit-model" className="sub-menu-item">
+            <li className={manu === "/submit" ? "active" : ""}>
+              <Link href="/submit" className="sub-menu-item">
                 Submit Model
               </Link>
             </li>
