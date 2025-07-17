@@ -208,7 +208,7 @@
     "inputs": [
       { "internalType": "uint256", "name": "_modelId", "type": "uint256" },
       {
-        "internalType": "enum SilensProposalVoting.ProposalType",
+        "internalType": "enum VotingProposal.ProposalType",
         "name": "_type",
         "type": "uint8"
       }
@@ -238,12 +238,12 @@
           { "internalType": "uint256", "name": "id", "type": "uint256" },
           { "internalType": "uint256", "name": "modelId", "type": "uint256" },
           {
-            "internalType": "enum SilensProposalVoting.ProposalType",
+            "internalType": "enum VotingProposal.ProposalType",
             "name": "proposalType",
             "type": "uint8"
           },
           {
-            "internalType": "enum SilensProposalVoting.ProposalStatus",
+            "internalType": "enum VotingProposal.ProposalStatus",
             "name": "status",
             "type": "uint8"
           },
@@ -257,7 +257,7 @@
           { "internalType": "uint256", "name": "endTime", "type": "uint256" },
           { "internalType": "bool", "name": "executed", "type": "bool" }
         ],
-        "internalType": "struct SilensProposalVoting.Proposal",
+        "internalType": "struct VotingProposal.Proposal",
         "name": "",
         "type": "tuple"
       }
@@ -280,7 +280,7 @@
     "name": "identitySystem",
     "outputs": [
       {
-        "internalType": "contract SilensIdentity",
+        "internalType": "contract IdentityRegistry",
         "name": "",
         "type": "address"
       }
@@ -293,7 +293,7 @@
     "name": "modelRegistry",
     "outputs": [
       {
-        "internalType": "contract SilensModelRegistry",
+        "internalType": "contract ModelRegistry",
         "name": "",
         "type": "address"
       }
@@ -315,12 +315,12 @@
       { "internalType": "uint256", "name": "id", "type": "uint256" },
       { "internalType": "uint256", "name": "modelId", "type": "uint256" },
       {
-        "internalType": "enum SilensProposalVoting.ProposalType",
+        "internalType": "enum VotingProposal.ProposalType",
         "name": "proposalType",
         "type": "uint8"
       },
       {
-        "internalType": "enum SilensProposalVoting.ProposalStatus",
+        "internalType": "enum VotingProposal.ProposalStatus",
         "name": "status",
         "type": "uint8"
       },
@@ -352,7 +352,7 @@
     "name": "reputationSystem",
     "outputs": [
       {
-        "internalType": "contract SilensReputationSystem",
+        "internalType": "contract ReputationSystem",
         "name": "",
         "type": "address"
       }
@@ -371,6 +371,35 @@
     "name": "setIdentitySystem",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_newQuorumPercentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "setQuorumPercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_silens", "type": "address" }
+    ],
+    "name": "setSilens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "silens",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
     "type": "function"
   },
   {

@@ -52,18 +52,6 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "summary",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
         "name": "ipfsHash",
         "type": "string"
       },
@@ -126,20 +114,14 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "prompt",
+        "name": "ipfsHash",
         "type": "string"
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "outputLog",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "screenshotHash",
-        "type": "string"
+        "internalType": "uint8",
+        "name": "reviewType",
+        "type": "uint8"
       },
       {
         "indexed": false,
@@ -167,11 +149,9 @@
         "components": [
           { "internalType": "uint256", "name": "id", "type": "uint256" },
           { "internalType": "address", "name": "submitter", "type": "address" },
-          { "internalType": "string", "name": "name", "type": "string" },
-          { "internalType": "string", "name": "summary", "type": "string" },
           { "internalType": "string", "name": "ipfsHash", "type": "string" },
           {
-            "internalType": "enum SilensModelRegistry.ModelStatus",
+            "internalType": "enum ModelRegistry.ModelStatus",
             "name": "status",
             "type": "uint8"
           },
@@ -188,7 +168,7 @@
           { "internalType": "uint256", "name": "upvotes", "type": "uint256" },
           { "internalType": "uint256", "name": "downvotes", "type": "uint256" }
         ],
-        "internalType": "struct SilensModelRegistry.Model",
+        "internalType": "struct ModelRegistry.Model",
         "name": "",
         "type": "tuple"
       }
@@ -205,17 +185,16 @@
       {
         "components": [
           { "internalType": "address", "name": "reviewer", "type": "address" },
-          { "internalType": "string", "name": "prompt", "type": "string" },
-          { "internalType": "string", "name": "outputLog", "type": "string" },
+          { "internalType": "string", "name": "ipfsHash", "type": "string" },
           {
-            "internalType": "string",
-            "name": "screenshotHash",
-            "type": "string"
+            "internalType": "enum ModelRegistry.ReviewType",
+            "name": "reviewType",
+            "type": "uint8"
           },
           { "internalType": "uint8", "name": "severity", "type": "uint8" },
           { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
         ],
-        "internalType": "struct SilensModelRegistry.Review[]",
+        "internalType": "struct ModelRegistry.Review[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -245,7 +224,7 @@
     "name": "identitySystem",
     "outputs": [
       {
-        "internalType": "contract SilensIdentity",
+        "internalType": "contract IdentityRegistry",
         "name": "",
         "type": "address"
       }
@@ -261,9 +240,12 @@
     "name": "modelReviews",
     "outputs": [
       { "internalType": "address", "name": "reviewer", "type": "address" },
-      { "internalType": "string", "name": "prompt", "type": "string" },
-      { "internalType": "string", "name": "outputLog", "type": "string" },
-      { "internalType": "string", "name": "screenshotHash", "type": "string" },
+      { "internalType": "string", "name": "ipfsHash", "type": "string" },
+      {
+        "internalType": "enum ModelRegistry.ReviewType",
+        "name": "reviewType",
+        "type": "uint8"
+      },
       { "internalType": "uint8", "name": "severity", "type": "uint8" },
       { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
     ],
@@ -276,11 +258,9 @@
     "outputs": [
       { "internalType": "uint256", "name": "id", "type": "uint256" },
       { "internalType": "address", "name": "submitter", "type": "address" },
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "summary", "type": "string" },
       { "internalType": "string", "name": "ipfsHash", "type": "string" },
       {
-        "internalType": "enum SilensModelRegistry.ModelStatus",
+        "internalType": "enum ModelRegistry.ModelStatus",
         "name": "status",
         "type": "uint8"
       },
@@ -305,6 +285,13 @@
   },
   {
     "inputs": [],
+    "name": "proposalContract",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -315,7 +302,7 @@
     "name": "reputationSystem",
     "outputs": [
       {
-        "internalType": "contract SilensReputationSystem",
+        "internalType": "contract ReputationSystem",
         "name": "",
         "type": "address"
       }
@@ -347,6 +334,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_proposalContract",
+        "type": "address"
+      }
+    ],
+    "name": "setProposalContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_reputationSystem",
         "type": "address"
       }
@@ -358,8 +358,6 @@
   },
   {
     "inputs": [
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_summary", "type": "string" },
       { "internalType": "string", "name": "_ipfsHash", "type": "string" }
     ],
     "name": "submitModel",
@@ -370,9 +368,12 @@
   {
     "inputs": [
       { "internalType": "uint256", "name": "_modelId", "type": "uint256" },
-      { "internalType": "string", "name": "_prompt", "type": "string" },
-      { "internalType": "string", "name": "_outputLog", "type": "string" },
-      { "internalType": "string", "name": "_screenshotHash", "type": "string" },
+      { "internalType": "string", "name": "_ipfsHash", "type": "string" },
+      {
+        "internalType": "enum ModelRegistry.ReviewType",
+        "name": "_reviewType",
+        "type": "uint8"
+      },
       { "internalType": "uint8", "name": "_severity", "type": "uint8" }
     ],
     "name": "submitReview",
@@ -393,7 +394,7 @@
     "inputs": [
       { "internalType": "uint256", "name": "_modelId", "type": "uint256" },
       {
-        "internalType": "enum SilensModelRegistry.ModelStatus",
+        "internalType": "enum ModelRegistry.ModelStatus",
         "name": "_status",
         "type": "uint8"
       }

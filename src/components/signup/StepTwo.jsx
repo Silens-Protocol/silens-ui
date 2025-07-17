@@ -3,7 +3,7 @@ import { useAccount, useWriteContract, useSignMessage } from "wagmi";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { SILENS_IDENTITY_CONTRACT, SILENS_REPUTATION_SYSTEM_CONTRACT } from "@/constants";
+import { IDENTITY_REGISTRY_CONTRACT, REPUTATION_SYSTEM_CONTRACT } from "@/constants";
 import { config } from "@/wagmi";
 import { encodeAbiParameters, keccak256 } from "viem";
 
@@ -80,7 +80,7 @@ export default function StepTwo({ tokenId }) {
       });
 
       const result = await writeContractAsync({
-        ...SILENS_IDENTITY_CONTRACT,
+        ...IDENTITY_REGISTRY_CONTRACT,
         functionName: 'verifyPlatformOwnership',
         args: [tokenId, "github", githubUsername, signature],
         account: address,
@@ -112,7 +112,7 @@ export default function StepTwo({ tokenId }) {
       setIsMintingBadge(true);
 
       const badgeResult = await writeContractAsync({
-        ...SILENS_REPUTATION_SYSTEM_CONTRACT,
+        ...REPUTATION_SYSTEM_CONTRACT,
         functionName: 'checkAndAwardVerifiedBadge',
         args: [address],
         account: address,

@@ -297,16 +297,6 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_user", "type": "address" },
-      { "internalType": "uint256", "name": "_points", "type": "uint256" }
-    ],
-    "name": "addReputation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       { "internalType": "address", "name": "_submitter", "type": "address" }
     ],
     "name": "awardModelSubmissionPoints",
@@ -376,7 +366,7 @@
     "name": "identitySystem",
     "outputs": [
       {
-        "internalType": "contract SilensIdentity",
+        "internalType": "contract IdentityRegistry",
         "name": "",
         "type": "address"
       }
@@ -391,6 +381,13 @@
     ],
     "name": "isApprovedForAll",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "modelRegistry",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -453,6 +450,15 @@
   },
   {
     "inputs": [
+      { "internalType": "address", "name": "_user", "type": "address" }
+    ],
+    "name": "setGovernanceVoter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "address",
         "name": "_identitySystem",
@@ -460,6 +466,15 @@
       }
     ],
     "name": "setIdentitySystem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_modelRegistry", "type": "address" }
+    ],
+    "name": "setModelRegistry",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

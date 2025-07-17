@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { readContract } from '@wagmi/core'
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { toast } from "react-hot-toast";
-import { SILENS_IDENTITY_CONTRACT } from "@/constants";
+import { IDENTITY_REGISTRY_CONTRACT } from "@/constants";
 import { pinata } from "@/utils/pinata";
 import { config } from "@/wagmi";
 
@@ -102,7 +104,7 @@ export default function StepOne({ onNext, setTokenId }) {
       const ipfsUri = `${upload.IpfsHash}`;
 
       const result = await writeContractAsync({
-        ...SILENS_IDENTITY_CONTRACT,
+        ...IDENTITY_REGISTRY_CONTRACT,
         functionName: 'mintIdentity',
         args: [ipfsUri],
         account: address,
@@ -114,11 +116,10 @@ export default function StepOne({ onNext, setTokenId }) {
 
       try {
         const tokenId = await readContract(config, {
-          ...SILENS_IDENTITY_CONTRACT,
+          ...IDENTITY_REGISTRY_CONTRACT,
           functionName: 'getTokenIdByAddress',
           args: [address],
         });
-        console.log(tokenId, "tokenId");
         setTokenId(tokenId);
         onNext();
       } catch (error) {

@@ -24,13 +24,14 @@ export default function HeroSectionOne() {
   const [governanceVotes, setGovernanceVotes] = useState(0);
 
   const { isConnected } = useAccount();
-  const { data: userData, isLoading } = useUser();
+  const { data: userData, isLoading, error } = useUser();
 
   const isUserVerified =
     isConnected && userData && hasIdentityAndVerified(userData);
   const isUserConnectedButNotVerified =
     isConnected && userData && hasIdentityButNotVerified(userData);
   const isUserNotConnected = !isConnected;
+  const isUserConnectedButNotRegistered = isConnected && !userData && !isLoading;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,6 +45,25 @@ export default function HeroSectionOne() {
 
   const renderButtons = () => {
     if (isUserNotConnected) {
+      return (
+        <>
+          <Link
+            href="/signup"
+            className="btn btn-pills btn-light me-3 px-4 py-3 fw-bold fs-5"
+          >
+            Mint Identity
+          </Link>
+          <Link
+            href="/signup"
+            className="btn btn-pills btn-outline-light px-4 py-3 fw-bold fs-5"
+          >
+            Be Verified
+          </Link>
+        </>
+      );
+    }
+
+    if (isUserConnectedButNotRegistered) {
       return (
         <>
           <Link
@@ -77,7 +97,7 @@ export default function HeroSectionOne() {
       return (
         <>
           <Link
-            href="/explore"
+            href="/submit"
             className="btn btn-pills btn-light me-3 px-4 py-3 fw-bold fs-5"
           >
             Submit AI Model
@@ -106,6 +126,19 @@ export default function HeroSectionOne() {
 
   const renderBottomContent = () => {
     if (isUserNotConnected) {
+      return (
+        <>
+          <p className="text-white-50 mb-0">
+            <small>Join as a reviewer and earn reputation badges</small>
+          </p>
+          <Link href="/signup" className="text-white fw-bold">
+            <small>Connect with CARV ID →</small>
+          </Link>
+        </>
+      );
+    }
+
+    if (isUserConnectedButNotRegistered) {
       return (
         <>
           <p className="text-white-50 mb-0">

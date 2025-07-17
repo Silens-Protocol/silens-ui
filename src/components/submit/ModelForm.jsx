@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
-import { readContract } from '@wagmi/core'
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { SILENS_MODEL_REGISTRY_CONTRACT } from "@/constants";
+import { MODEL_REGISTRY_CONTRACT } from "@/constants";
 import { pinata } from "@/utils/pinata";
 import { config } from "@/wagmi";
 import TagInput from "./TagInput";
@@ -108,7 +107,10 @@ export default function ModelForm() {
         submitter: address
       };
 
-      const metadataUpload = await pinata.upload.json(modelMetadata).key(keyData.JWT);
+      const keyRequest2 = await fetch("/api/key");
+      const keyData2 = await keyRequest2.json();
+
+      const metadataUpload = await pinata.upload.json(modelMetadata).key(keyData2.JWT);
       if (!metadataUpload.IpfsHash) {
         throw new Error("Failed to upload model metadata");
       }
@@ -116,9 +118,9 @@ export default function ModelForm() {
       const ipfsHash = metadataUpload.IpfsHash;
 
       const result = await writeContractAsync({
-        ...SILENS_MODEL_REGISTRY_CONTRACT,
+        ...MODEL_REGISTRY_CONTRACT,
         functionName: 'submitModel',
-        args: [formData.name, formData.summary, ipfsHash],
+        args: [ipfsHash],
         account: address,
       });
 
@@ -126,26 +128,17 @@ export default function ModelForm() {
         hash: result,
       });
 
-      try {
-        const totalModels = await readContract(config, {
-          ...SILENS_MODEL_REGISTRY_CONTRACT,
-          functionName: 'getTotalModels',
-        });
-        
-        const modelId = totalModels - 1n;
-        router.push(`/explore/${modelId}`);
-      } catch (error) {
-        console.error("Error getting model ID:", error);
-        router.push('/explore');
-      }
-
+      router.push('/profile');
       return result;
     };
 
     toast.promise(promise(), {
       loading: 'Submitting your model...',
       success: 'Model submitted successfully! Redirecting to explore page...',
-      error: (err) => `Error: ${err.message || 'Something went wrong'}`
+      error: (err) => {
+        console.error("Model submission error:", err);
+        return `Error: ${err.message || 'Something went wrong'}`;
+      }
     });
   };
 

@@ -140,7 +140,7 @@
     "name": "identitySystem",
     "outputs": [
       {
-        "internalType": "contract SilensIdentity",
+        "internalType": "contract IdentityRegistry",
         "name": "",
         "type": "address"
       }
@@ -153,7 +153,7 @@
     "name": "modelRegistry",
     "outputs": [
       {
-        "internalType": "contract SilensModelRegistry",
+        "internalType": "contract ModelRegistry",
         "name": "",
         "type": "address"
       }
@@ -180,7 +180,7 @@
     "name": "proposalVoting",
     "outputs": [
       {
-        "internalType": "contract SilensProposalVoting",
+        "internalType": "contract VotingProposal",
         "name": "",
         "type": "address"
       }
@@ -200,7 +200,7 @@
     "name": "reputationSystem",
     "outputs": [
       {
-        "internalType": "contract SilensReputationSystem",
+        "internalType": "contract ReputationSystem",
         "name": "",
         "type": "address"
       }
