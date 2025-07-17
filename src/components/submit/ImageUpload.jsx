@@ -47,6 +47,21 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
     handleImageSelect(droppedFiles);
   };
 
+  const handleUploadClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileInputChange = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleImageSelect(e.target.files);
+    e.target.value = '';
+  };
+
   const removeImage = () => {
     setImage(null);
     setPreviewUrl(null);
@@ -69,7 +84,7 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={handleUploadClick}
         >
           <div className="upload-content">
             <i className="mdi mdi-image upload-icon"></i>
@@ -87,8 +102,9 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
             ref={fileInputRef}
             type="file"
             accept={acceptedTypes}
-            onChange={(e) => handleImageSelect(e.target.files)}
+            onChange={handleFileInputChange}
             className="file-input"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       ) : (
@@ -117,7 +133,7 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
             <button
               type="button"
               className="change-image-btn"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleUploadClick}
             >
               <i className="mdi mdi-image-edit me-2"></i>
               Change Image
@@ -126,8 +142,9 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
               ref={fileInputRef}
               type="file"
               accept={acceptedTypes}
-              onChange={(e) => handleImageSelect(e.target.files)}
+              onChange={handleFileInputChange}
               className="hidden-input"
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
@@ -147,6 +164,7 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
           transition: all 0.3s ease;
           background: rgba(247, 250, 252, 0.5);
           position: relative;
+          user-select: none;
         }
         
         .image-upload-area:hover {
@@ -165,6 +183,7 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
           flex-direction: column;
           align-items: center;
           gap: 1rem;
+          pointer-events: none;
         }
         
         .upload-icon {
@@ -204,6 +223,9 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
           width: 100%;
           height: 100%;
           cursor: pointer;
+          top: 0;
+          left: 0;
+          z-index: 1;
         }
         
         .hidden-input {
@@ -211,6 +233,7 @@ export default function ImageUpload({ onImageChange, acceptedTypes = "image/*", 
           opacity: 0;
           width: 0;
           height: 0;
+          pointer-events: none;
         }
         
         .image-preview-container {
