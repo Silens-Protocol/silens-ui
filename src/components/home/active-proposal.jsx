@@ -105,10 +105,6 @@ export default function ActiveGovernanceProposals() {
   const { data, isLoading, error } = useActiveProposals({ limit: 4 });
   const [proposalsData, setProposalsData] = useState([]);
 
-  if (data?.proposals) {
-    console.log('Active Proposals Data:', data.proposals);
-  }
-
   useEffect(() => {
     if (data?.proposals) {
       const updatedData = data.proposals.map((proposal) => ({

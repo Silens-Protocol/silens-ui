@@ -123,7 +123,6 @@ export default function StepOne({ onNext, setTokenId }) {
         setTokenId(tokenId);
         onNext();
       } catch (error) {
-        console.log(error, "error");
         throw new Error("Failed to get token ID from transaction");
       }
 

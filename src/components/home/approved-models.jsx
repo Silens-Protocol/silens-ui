@@ -105,10 +105,6 @@ export default function ApprovedModels({ filter = true, limit = 12 }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [sortBy, setSortBy] = useState("recent");
 
-  if (data?.models) {
-    console.log('Approved Models Data:', data.models);
-  }
-
   const filteredData = selectedCategory
     ? (data?.models || []).filter((item) => item.metadata?.category?.toLowerCase() === selectedCategory)
     : (data?.models || []);

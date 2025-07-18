@@ -10,8 +10,8 @@ import { encodeAbiParameters, keccak256 } from "viem";
 
 export default function StepTwo({ tokenId }) {
   const { isConnected, address } = useAccount();
-  const { writeContractAsync, isPending } = useWriteContract();
-  const { signMessageAsync, isPending: isSigning } = useSignMessage();
+  const { writeContractAsync } = useWriteContract();
+  const { signMessageAsync } = useSignMessage();
   const router = useRouter();
 
   const [githubUsername, setGithubUsername] = useState("");
@@ -133,7 +133,7 @@ export default function StepTwo({ tokenId }) {
       error: (err) => `Error: ${err.message || 'Something went wrong'}`
     }).then(() => {
       setTimeout(() => {
-        router.push('/');
+        router.push('/profile');
       }, 2000);
     });
   };

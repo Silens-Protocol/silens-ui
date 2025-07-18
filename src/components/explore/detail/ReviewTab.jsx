@@ -1,13 +1,52 @@
+"use client"
+
+import { useState } from "react"
 import Image from "next/image"
-import { getReviewTypeText, getSeverityText, getSeverityBadge, formatDate, formatAddress } from "../../../utils/utils"
+import { getReviewTypeText, getSeverityText, getSeverityBadge, formatDate, formatAddress, getStatusText } from "../../../utils/utils"
 import { CiCalendar as CalendarIcon } from "react-icons/ci"
 import { FaThumbsUp as ThumbsUpIcon } from "react-icons/fa"
 import { FaThumbsDown as ThumbsDownIcon } from "react-icons/fa"
 import { FaRegCommentDots as CommentIcon } from "react-icons/fa"
+import { FaPlus as PlusIcon } from "react-icons/fa"
+import ReviewForm from "./ReviewForm"
 
 export default function ReviewTab({ modelData }) {
+  const [showReviewForm, setShowReviewForm] = useState(false)
+
+  // Check if model is under review
+  const isUnderReview = getStatusText(modelData.status, modelData.proposals) === "Under Review"
+
+  const handleSubmitReview = (reviewData) => {
+    // TODO: Implement review submission logic
+    alert("Review submission will be implemented later!")
+    setShowReviewForm(false)
+  }
+
+  const handleCancelReview = () => {
+    setShowReviewForm(false)
+  }
+
   return (
     <div className="tab-pane fade show active">
+      {/* Add Review Button - Now visible for all model statuses */}
+      <div className="mb-4 d-flex justify-content-end">
+        {!showReviewForm ? (
+          <button
+            className="btn btn-primary px-3 py-2 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
+            onClick={() => setShowReviewForm(true)}
+          >
+            <PlusIcon className="me-2" />
+            Add Your Review
+          </button>
+        ) : (
+          <ReviewForm 
+            onSubmit={handleSubmitReview}
+            onCancel={handleCancelReview}
+          />
+        )}
+      </div>
+
+      {/* Existing Reviews */}
       {modelData.reviews && modelData.reviews.length > 0 ? (
         <div className="row g-4">
           {modelData.reviews.map((review, index) => (

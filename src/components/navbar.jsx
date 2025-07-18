@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAccount } from "wagmi";
-import { useUser, hasIdentityAndVerified } from "../hooks/useUser";
 import ConnectWallet from "./connect-wallet";
 
 export default function Navbar({ navlight, gradient }) {
@@ -17,10 +16,6 @@ export default function Navbar({ navlight, gradient }) {
   let current = pathname;
 
   const { isConnected } = useAccount();
-  const { data: userData } = useUser();
-
-  const isUserVerified =
-    isConnected && userData && hasIdentityAndVerified(userData);
 
   useEffect(() => {
     setManu(current);
@@ -144,13 +139,13 @@ export default function Navbar({ navlight, gradient }) {
               </Link>
             </li>
 
-            {isUserVerified && (
-              <li className={manu === "/profile" ? "active" : ""}>
-                <Link href="/profile" className="sub-menu-item">
-                  Profile
-                </Link>
-              </li>
-            )}
+              {isConnected && (
+                <li className={manu === "/profile" ? "active" : ""}>
+                  <Link href="/profile" className="sub-menu-item">
+                    Profile
+                  </Link>
+                </li>
+              )}
           </ul>
         </div>
       </div>
