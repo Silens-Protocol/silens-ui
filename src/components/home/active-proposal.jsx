@@ -289,7 +289,7 @@ export default function ActiveGovernanceProposals() {
                   </div>
 
                   <div className="proposal-preview rounded-md position-relative overflow-hidden bg-light p-3">
-                    <p className="text-muted small mb-2">
+                    <p className="text-muted small mb-2 text-truncate-2-lines" style={{ minHeight: "48px" }}>
                       {model?.metadata?.summary || "No description available"}
                     </p>
 
@@ -371,7 +371,7 @@ export default function ActiveGovernanceProposals() {
                             quorumMet ? "success" : "warning"
                           }`}
                         >
-                          {quorumMet ? "100.0" : "0.0"}% / 20%
+                          {quorumMet ? "100.0" : "0.0"}% / 10%
                         </span>
                       </div>
                       <div className="text-end">
@@ -387,7 +387,7 @@ export default function ActiveGovernanceProposals() {
 
                     <div className="d-grid mt-auto">
                       <Link
-                        href={`/governance/proposal/${proposal.id}`}
+                        href={`/explore/${proposal.modelId}`}
                         className={`btn btn-${proposalType.color}`}
                       >
                         <FiUsers className="me-1" /> Cast Your Vote

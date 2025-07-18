@@ -17,6 +17,7 @@ import {
 } from "../../assets/icons/vander";
 import { FaArrowsSpin } from "react-icons/fa6";
 import { useModels } from "../../hooks/useModelData";
+import { isProposalActive, getLatestProposal, getProposalTimeRemaining } from "../../utils/utils";
 
 export default function ExploreModels({ filters }) {
   const [page, setPage] = useState(1);
@@ -59,8 +60,27 @@ export default function ExploreModels({ filters }) {
     setPage(page + 1);
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
+  const getStatusBadge = (model) => {
+    const latestProposal = getLatestProposal(model.proposals);
+    if (latestProposal && isProposalActive(latestProposal)) {
+      return (
+        <span className="badge bg-soft-primary text-primary rounded-pill">
+          <FiUsers className="me-1" style={{ fontSize: "12px" }} />{" "}
+          Governance Active
+        </span>
+      );
+    }
+
+    if (latestProposal && !isProposalActive(latestProposal) && !latestProposal.executed) {
+      return (
+        <span className="badge bg-soft-warning text-warning rounded-pill">
+          <FiClock className="me-1" style={{ fontSize: "12px" }} />{" "}
+          Pending Execution
+        </span>
+      );
+    }
+
+    switch (model.status) {
       case 0:
         return (
           <span className="badge bg-soft-info text-info rounded-pill">
@@ -127,11 +147,13 @@ export default function ExploreModels({ filters }) {
           const metadata = model.metadata;
           const stats = model.stats;
           
+
+          
           return (
             <div className="col mt-4 pt-2" key={model.id} onClick={() => router.push(`/explore/${model.id}`)}>
-              <div className="model-card h-100">
+              <div className="model-card h-100">      
                 <div className="status-header">
-                  {getStatusBadge(model.status)}
+                  {getStatusBadge(model)}
                   <div className="score-badge">
                     <FiAward />
                     <span>{stats?.averageSeverity ? (10 - stats.averageSeverity).toFixed(1) : "N/A"}</span>
@@ -232,6 +254,12 @@ export default function ExploreModels({ filters }) {
                       <span className="vote-text">
                         {model.proposals[0]?.forVotes || 0}% approval
                       </span>
+                      {isProposalActive(model.proposals[0]) && (
+                        <div className="active-voting-indicator">
+                          <FiClock className="me-1" />
+                          <span>{getProposalTimeRemaining(model.proposals[0])}</span>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -291,12 +319,56 @@ export default function ExploreModels({ filters }) {
           min-width: 320px;
           margin: 0 auto;
           cursor: pointer;
+          position: relative;
         }
 
         .model-card:hover {
           transform: translateY(-5px);
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
+
+        .governance-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+          border: 2px solid #667eea;
+          border-radius: 16px;
+          z-index: 1;
+          pointer-events: none;
+        }
+
+        .governance-badge {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          }
+          50% {
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+          }
+          100% {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          }
+        }
+
+
 
         .status-header {
           padding: 16px 20px;
@@ -305,6 +377,8 @@ export default function ExploreModels({ filters }) {
           justify-content: space-between;
           align-items: center;
           border-bottom: 1px solid #e9ecef;
+          position: relative;
+          z-index: 2;
         }
 
         .score-badge {
@@ -475,6 +549,20 @@ export default function ExploreModels({ filters }) {
         .vote-text {
           font-size: 12px;
           color: #6c757d;
+        }
+
+        .active-voting-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 6px 12px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          margin-top: 8px;
+          animation: pulse 2s infinite;
         }
 
         .flag-reason {
