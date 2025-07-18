@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 import Select from "react-select";
+import { useAnalytics } from "../../hooks/useModelData";
 
 export default function ModelFilterForm({ onFilterChange }) {
   const [filters, setFilters] = useState({
-    search: "",
     status: "all",
     category: "all",
-    sortBy: "recent",
   });
+
+  const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
 
   const statusOptions = [
     { value: "all", label: "All Models" },
+    { value: "under_review", label: "Under Review" },
     { value: "approved", label: "Approved Models" },
     { value: "flagged", label: "Flagged Models" },
   ];
@@ -25,22 +27,6 @@ export default function ModelFilterForm({ onFilterChange }) {
     { value: "ethics", label: "Ethics & Values" },
     { value: "transparency", label: "Transparency" },
   ];
-
-  const sortOptions = [
-    { value: "recent", label: "Recently Approved" },
-    { value: "score", label: "Highest Score" },
-    { value: "usage", label: "Most Used" },
-    { value: "reviews", label: "Most Reviewed" },
-  ];
-
-  const handleSearchChange = (e) => {
-    const newFilters = { ...filters, search: e.target.value };
-    setFilters(newFilters);
-    clearTimeout(window.searchTimeout);
-    window.searchTimeout = setTimeout(() => {
-      onFilterChange(newFilters);
-    }, 300);
-  };
 
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value };
@@ -105,20 +91,7 @@ export default function ModelFilterForm({ onFilterChange }) {
     <form onSubmit={handleSubmit}>
       <div className="filter-container">
         <div className="row g-3">
-          <div className="col-lg-3 col-md-6">
-            <div className="filter-item">
-              <input
-                name="search"
-                type="text"
-                className="form-control filter-input"
-                placeholder="Search models..."
-                value={filters.search}
-                onChange={handleSearchChange}
-              />
-            </div>
-          </div>
-
-          <div className="col-lg-3 col-md-6">
+          <div className="col-lg-6 col-md-6">
             <div className="filter-item">
               <Select
                 options={statusOptions}
@@ -135,7 +108,7 @@ export default function ModelFilterForm({ onFilterChange }) {
             </div>
           </div>
 
-          <div className="col-lg-3 col-md-6">
+          <div className="col-lg-6 col-md-6">
             <div className="filter-item">
               <Select
                 options={categoryOptions}
@@ -151,39 +124,32 @@ export default function ModelFilterForm({ onFilterChange }) {
               />
             </div>
           </div>
-
-          <div className="col-lg-3 col-md-6">
-            <div className="filter-item">
-              <Select
-                options={sortOptions}
-                styles={customStyles}
-                placeholder="Sort By"
-                value={sortOptions.find((opt) => opt.value === filters.sortBy)}
-                onChange={(selected) =>
-                  handleFilterChange("sortBy", selected.value)
-                }
-                isSearchable={false}
-              />
-            </div>
-          </div>
         </div>
 
         <div className="filter-stats">
           <div className="stat-item">
             <span className="stat-label">Total Models:</span>
-            <span className="stat-value">156</span>
+            <span className="stat-value">
+              {analyticsLoading ? "..." : analytics?.models?.total || 0}
+            </span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Under Review:</span>
+            <span className="stat-value text-info">
+              {analyticsLoading ? "..." : analytics?.models?.underReview || 0}
+            </span>
           </div>
           <div className="stat-item">
             <span className="stat-label">Approved:</span>
-            <span className="stat-value text-success">142</span>
+            <span className="stat-value text-success">
+              {analyticsLoading ? "..." : analytics?.models?.approved || 0}
+            </span>
           </div>
           <div className="stat-item">
             <span className="stat-label">Flagged:</span>
-            <span className="stat-value text-warning">14</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Avg Score:</span>
-            <span className="stat-value">8.4/10</span>
+            <span className="stat-value text-warning">
+              {analyticsLoading ? "..." : analytics?.models?.flagged || 0}
+            </span>
           </div>
         </div>
       </div>
@@ -233,7 +199,6 @@ export default function ModelFilterForm({ onFilterChange }) {
           pointer-events: none;
         }
 
-        /* Ensure Select components take full width */
         .filter-item :global(.css-13cymwt-control) {
           width: 100% !important;
         }

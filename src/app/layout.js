@@ -5,6 +5,7 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import '../assets/scss/style.scss'
 import '../assets/css/materialdesignicons.min.css'
 import '@rainbow-me/rainbowkit/styles.css';
+import './globals.css';
 
 const manrope = Manrope({ 
   subsets: ["latin"],

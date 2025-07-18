@@ -9,10 +9,8 @@ import Banner from '../../components/explore/banner'
 
 export default function Explore() {
   const [filters, setFilters] = useState({
-    search: '',
     status: 'all',
-    category: 'all',
-    sortBy: 'recent'
+    category: 'all'
   });
 
   const handleFilterChange = (newFilters) => {
@@ -23,7 +21,6 @@ export default function Explore() {
     <>
       <Navbar navlight={true}/>
       
-      {/* Hero Section */}
       <section 
         className="bg-half-170 d-table w-100" 
         style={{
@@ -48,7 +45,6 @@ export default function Explore() {
         </div>
       </section>
 
-      {/* Shape Divider */}
       <div className="position-relative">            
         <div className="shape overflow-hidden text-white">
           <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,7 +53,6 @@ export default function Explore() {
         </div>
       </div>
 
-      {/* Main Content Section */}
       <section className="section">
         <div className="container">
           <div className="row justify-content-center">

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import {
   FiShield,
@@ -12,130 +13,61 @@ import {
   FiTrendingUp,
   FiClock,
   FiFilter,
+  FiEye,
 } from "../../assets/icons/vander";
 import { FaArrowsSpin } from "react-icons/fa6";
-
-const aiModelsData = [
-  {
-    id: 1,
-    name: "SafeGuard AI v3.0",
-    submitter: "0x1234...5678",
-    submitterAvatar: "/images/client/01.jpg",
-    summary: "Enterprise-grade content moderation with 99.9% accuracy",
-    status: 1,
-    category: "safety",
-    ipfsHash: "QmXxx...",
-    approvalDate: new Date("2025-01-10"),
-    totalReviews: 45,
-    averageSeverity: 1.2,
-    governanceVotes: { for: 89, against: 11 },
-    usageCount: 1250,
-    verifiedBadges: ["Safety Certified", "Low Risk"],
-    tags: ["content-moderation", "enterprise"],
-    communityScore: 9.2,
-    lastUpdated: new Date("2025-01-15"),
-  },
-  {
-    id: 2,
-    name: "BiasDetector Pro",
-    submitter: "0xabcd...efgh",
-    submitterAvatar: "/images/client/02.jpg",
-    summary: "Advanced bias detection across multiple dimensions",
-    status: 2,
-    category: "fairness",
-    ipfsHash: "QmYyy...",
-    approvalDate: new Date("2025-01-08"),
-    totalReviews: 38,
-    averageSeverity: 3.2,
-    governanceVotes: { for: 52, against: 48 },
-    usageCount: 890,
-    verifiedBadges: ["Under Review", "Medium Risk"],
-    tags: ["bias-detection", "fairness"],
-    communityScore: 6.8,
-    lastUpdated: new Date("2025-01-14"),
-    flagReason: "Potential false positives in edge cases",
-  },
-  {
-    id: 3,
-    name: "PrivacyShield LLM",
-    submitter: "0x9876...5432",
-    submitterAvatar: "/images/client/03.jpg",
-    summary: "Privacy-preserving language model with differential privacy",
-    status: 1,
-    category: "privacy",
-    ipfsHash: "QmZzz...",
-    approvalDate: new Date("2025-01-12"),
-    totalReviews: 52,
-    averageSeverity: 1.1,
-    governanceVotes: { for: 94, against: 6 },
-    usageCount: 2100,
-    verifiedBadges: ["Privacy First", "GDPR Compliant"],
-    tags: ["privacy", "llm", "differential-privacy"],
-    communityScore: 9.5,
-    lastUpdated: new Date("2025-01-16"),
-  },
-];
+import { useModels } from "../../hooks/useModelData";
 
 export default function ExploreModels({ filters }) {
-  const [modelData, setModelData] = useState(aiModelsData);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const itemsPerPage = 12;
+  const router = useRouter();
+
+  const getApiParams = () => {
+    const params = {
+      limit: page * itemsPerPage,
+      offset: 0,
+      includeRelated: true
+    };
+
+    if (filters?.status && filters.status !== "all") {
+      switch (filters.status) {
+        case "under_review":
+          params.status = 0;
+          break;
+        case "approved":
+          params.status = 1;
+          break;
+        case "flagged":
+          params.status = 2;
+          break;
+        default:
+          break;
+      }
+    }
+
+    return params;
+  };
+
+  const { data, isLoading, error } = useModels(getApiParams());
 
   useEffect(() => {
-    let filtered = [...aiModelsData];
-
-    if (filters?.status !== "all") {
-      filtered = filtered.filter((model) => {
-        if (filters.status === "approved") return model.status === 1;
-        if (filters.status === "flagged") return model.status === 2;
-        return true;
-      });
-    }
-
-    if (filters?.category && filters.category !== "all") {
-      filtered = filtered.filter(
-        (model) => model.category === filters.category
-      );
-    }
-
-    if (filters?.search) {
-      filtered = filtered.filter(
-        (model) =>
-          model.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-          model.summary.toLowerCase().includes(filters.search.toLowerCase()) ||
-          model.tags.some((tag) => tag.includes(filters.search.toLowerCase()))
-      );
-    }
-
-    if (filters?.sortBy) {
-      filtered.sort((a, b) => {
-        switch (filters.sortBy) {
-          case "score":
-            return b.communityScore - a.communityScore;
-          case "usage":
-            return b.usageCount - a.usageCount;
-          case "recent":
-            return new Date(b.approvalDate) - new Date(a.approvalDate);
-          default:
-            return 0;
-        }
-      });
-    }
-
-    setModelData(filtered);
+    setPage(1);
   }, [filters]);
 
   const loadMore = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setPage(page + 1);
-      setLoading(false);
-    }, 1000);
+    setPage(page + 1);
   };
 
   const getStatusBadge = (status) => {
     switch (status) {
+      case 0:
+        return (
+          <span className="badge bg-soft-info text-info rounded-pill">
+            <FiEye className="me-1" style={{ fontSize: "12px" }} />{" "}
+            Under Review
+          </span>
+        );
       case 1:
         return (
           <span className="badge bg-soft-success text-success rounded-pill">
@@ -156,78 +88,111 @@ export default function ExploreModels({ filters }) {
   };
 
   const getRiskColor = (severity) => {
-    if (severity <= 2) return "success";
-    if (severity <= 3) return "warning";
+    if (severity <= 1) return "success";
+    if (severity <= 2) return "warning";
     return "danger";
   };
 
-  const displayedModels = modelData.slice(0, page * itemsPerPage);
+  if (isLoading && page === 1) {
+    return (
+      <div className="row justify-content-center">
+        <div className="col-12 text-center">
+          <FaArrowsSpin className="mdi-spin" style={{ fontSize: "2rem" }} />
+          <p className="mt-3">Loading models...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="row justify-content-center">
+        <div className="col-12 text-center">
+          <p className="text-danger">Error loading models: {error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const allModels = data?.models || [];
+  const startIndex = (page - 1) * itemsPerPage;
+  const models = allModels.slice(startIndex, startIndex + itemsPerPage);
+  const hasMore = allModels.length >= page * itemsPerPage;
 
   return (
     <>
       <div className="row row-cols-xl-3 row-cols-lg-3 row-cols-md-2 row-cols-1">
-        {displayedModels.map((model, index) => {
+        {models.map((model, index) => {
+          const submitterProfile = model.submitter?.profile;
+          const metadata = model.metadata;
+          const stats = model.stats;
+          
           return (
-            <div className="col mt-4 pt-2" key={index}>
+            <div className="col mt-4 pt-2" key={model.id} onClick={() => router.push(`/explore/${model.id}`)}>
               <div className="model-card h-100">
                 <div className="status-header">
                   {getStatusBadge(model.status)}
                   <div className="score-badge">
                     <FiAward />
-                    <span>{model.communityScore}</span>
+                    <span>{stats?.averageSeverity ? (10 - stats.averageSeverity).toFixed(1) : "N/A"}</span>
                   </div>
                 </div>
 
                 <div className="model-content">
                   <div className="submitter-info">
-                    <Image
-                      src={model.submitterAvatar}
-                      width={40}
-                      height={40}
-                      alt="submitter"
-                      className="submitter-avatar"
-                    />
+                    <div className="submitter-avatar-container">
+                      <Image
+                        src={submitterProfile?.profilePictureUrl || "/images/client/01.jpg"}
+                        width={40}
+                        height={40}
+                        alt="submitter"
+                        className="submitter-avatar"
+                      />
+                    </div>
                     <div className="submitter-details">
-                      <Link href={`/model/${model.id}`} className="model-name">
-                        {model.name}
+                      <Link href={`/explore/${model.id}`} className="model-name">
+                        {metadata?.name || "Unnamed Model"}
                       </Link>
                       <span className="submitter-address">
-                        {model.submitter}
+                        {model.submitter?.owner ? 
+                          `${model.submitter.owner.slice(0, 6)}...${model.submitter.owner.slice(-4)}` : 
+                          "Unknown"
+                        }
                       </span>
                     </div>
                   </div>
 
-                  <p className="model-summary">{model.summary}</p>
+                  <p className="model-summary">{metadata?.summary || "No description available"}</p>
 
                   <div className="tags-container">
-                    {model.tags.slice(0, 3).map((tag, i) => (
+                    {metadata?.tags?.slice(0, 3).map((tag, i) => (
                       <span key={i} className="tag-badge">
                         {tag}
                       </span>
-                    ))}
+                    )) || []}
                   </div>
 
                   <div className="stats-grid">
                     <div className="stat">
                       <FiUsers className="stat-icon" />
                       <div>
-                        <span className="stat-value">{model.totalReviews}</span>
+                        <span className="stat-value">{stats?.totalReviews || 0}</span>
                         <span className="stat-label">Reviews</span>
                       </div>
                     </div>
                     <div className="stat">
                       <FiShield
                         className={`stat-icon text-${getRiskColor(
-                          model.averageSeverity
+                          stats?.averageSeverity || 0
                         )}`}
                       />
                       <div>
                         <span
                           className={`stat-value text-${getRiskColor(
-                            model.averageSeverity
+                            stats?.averageSeverity || 0
                           )}`}
                         >
-                          {model.averageSeverity.toFixed(1)}
+                          {(stats?.averageSeverity || 0).toFixed(1)}
                         </span>
                         <span className="stat-label">Risk</span>
                       </div>
@@ -235,48 +200,45 @@ export default function ExploreModels({ filters }) {
                     <div className="stat">
                       <FiTrendingUp className="stat-icon" />
                       <div>
-                        <span className="stat-value">{model.usageCount}</span>
-                        <span className="stat-label">Uses</span>
+                        <span className="stat-value">{metadata?.tags?.length || 0}</span>
+                        <span className="stat-label">Tags</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="verified-badges">
-                    {model.verifiedBadges.map((badge, i) => (
-                      <span
-                        key={i}
-                        className={`verified-badge ${
-                          model.status === 2 ? "warning" : ""
-                        }`}
-                      >
-                        {badge}
+                    {metadata?.category && (
+                      <span className="verified-badge">
+                        {metadata.category}
                       </span>
-                    ))}
+                    )}
+                    {stats?.totalReviews > 0 && (
+                      <span className="verified-badge">
+                        {stats.totalReviews} Reviews
+                      </span>
+                    )}
                   </div>
 
-                  <div className="governance-result">
-                    <div className="vote-bar">
-                      <div
-                        className="vote-fill"
-                        style={{
-                          width: `${
-                            (model.governanceVotes.for /
-                              (model.governanceVotes.for +
-                                model.governanceVotes.against)) *
-                            100
-                          }%`,
-                        }}
-                      />
+                  {model.proposals && model.proposals.length > 0 && (
+                    <div className="governance-result">
+                      <div className="vote-bar">
+                        <div
+                          className="vote-fill"
+                          style={{
+                            width: `${(model.proposals[0]?.forVotes / (model.proposals[0]?.forVotes + model.proposals[0]?.againstVotes)) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="vote-text">
+                        {model.proposals[0]?.forVotes || 0}% approval
+                      </span>
                     </div>
-                    <span className="vote-text">
-                      {model.governanceVotes.for}% approval
-                    </span>
-                  </div>
+                  )}
 
-                  {model.status === 2 && model.flagReason && (
+                  {model.status === 2 && (
                     <div className="flag-reason">
                       <FiAlertTriangle />
-                      <span>{model.flagReason}</span>
+                      <span>Model has been flagged for review</span>
                     </div>
                   )}
                 </div>
@@ -284,7 +246,7 @@ export default function ExploreModels({ filters }) {
                 <div className="model-footer">
                   <FiClock />
                   <span>
-                    Updated {new Date(model.lastUpdated).toLocaleDateString()}
+                    Updated {new Date(parseInt(model.submissionTime) * 1000).toLocaleDateString()}
                   </span>
                 </div>
               </div>
@@ -293,16 +255,16 @@ export default function ExploreModels({ filters }) {
         })}
       </div>
 
-      {displayedModels.length < modelData.length && (
+      {hasMore && (
         <div className="row justify-content-center mt-4">
           <div className="col">
             <div className="text-center">
               <button
                 onClick={loadMore}
                 className="btn btn-primary rounded-md"
-                disabled={loading}
+                disabled={isLoading}
               >
-                {loading ? (
+                {isLoading ? (
                   <>
                     <FaArrowsSpin className="mdi-spin me-1" /> Loading...
                   </>
@@ -373,10 +335,21 @@ export default function ExploreModels({ filters }) {
           gap: 12px;
         }
 
-        .submitter-avatar {
+        .submitter-avatar-container {
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           border: 2px solid #f0f0f0;
           margin-right: 12px;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        .submitter-avatar {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
         }
 
         .submitter-details {
