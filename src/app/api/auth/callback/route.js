@@ -5,8 +5,12 @@ export async function GET(req) {
   const code = searchParams.get('code');
   const inputUsername = searchParams.get('username');
 
+  const protocol = req.headers.get('x-forwarded-proto') || 'http';
+  const host = req.headers.get('host') || 'localhost:3000';
+  const baseUrl = `${protocol}://${host}`;
+
   if (!code || !inputUsername) {
-    return NextResponse.redirect(`http://localhost:3000/signup?verified=false&reason=missing_params`);
+    return NextResponse.redirect(`${baseUrl}/signup?verified=false&reason=missing_params`);
   }
 
   try {
@@ -50,12 +54,12 @@ export async function GET(req) {
     const expectedUsername = inputUsername.toLowerCase();
 
     if (githubUsername !== expectedUsername) {
-      return NextResponse.redirect(`http://localhost:3000/signup?verified=false&reason=username_mismatch`);
+      return NextResponse.redirect(`${baseUrl}/signup?verified=false&reason=username_mismatch`);
     }
 
-    return NextResponse.redirect(`http://localhost:3000/signup?verified=true&username=${githubUsername}`);
+    return NextResponse.redirect(`${baseUrl}/signup?verified=true&username=${githubUsername}`);
   } catch (err) {
     console.error(err);
-    return NextResponse.redirect(`http://localhost:3000/signup?verified=false&reason=oauth_error`);
+    return NextResponse.redirect(`${baseUrl}/signup?verified=false&reason=oauth_error`);
   }
 }

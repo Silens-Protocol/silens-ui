@@ -5,16 +5,16 @@ import { useAccount } from 'wagmi';
 import { useUserModels } from '../../hooks/useUser';
 import { getStatusText, formatDate, formatAddress } from '../../utils/utils';
 import { CiCalendar as CalendarIcon } from "react-icons/ci";
-import { FaEye as EyeIcon } from "react-icons/fa";
 import { FaThumbsUp as ThumbsUpIcon } from "react-icons/fa";
 import { FaThumbsDown as ThumbsDownIcon } from "react-icons/fa";
 import { FaRegCommentDots as CommentIcon } from "react-icons/fa";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ModelTab() {
   const { address } = useAccount();
   const { data: modelsData, isLoading, error } = useUserModels(address);
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -94,7 +94,7 @@ export default function ModelTab() {
                       )}
                     </div>
                     <div>
-                      <h5 className="mb-1 fw-bold text-dark">
+                      <h5 className="mb-1 fw-bold text-dark" onClick={() => router.push(`/explore/${model.id}`)}>
                         {model.metadata?.name || `Model #${model.id}`}
                       </h5>
                       <p className="mb-2 text-muted small">
@@ -175,14 +175,14 @@ export default function ModelTab() {
                             </small>
                             <div className="d-flex align-items-center gap-2">
                               <span className={`badge ${
-                                review.reviewType === 1 ? "bg-success" : "bg-danger"
+                                review.reviewType === 0 ? "bg-success" : "bg-danger"
                               } px-2 py-1 rounded-pill small`}>
-                                {review.reviewType === 1 ? (
+                                {review.reviewType === 0 ? (
                                   <ThumbsUpIcon className="me-1" size={10} />
                                 ) : (
                                   <ThumbsDownIcon className="me-1" size={10} />
                                 )}
-                                {review.reviewType === 1 ? "Positive" : "Negative"}
+                                {review.reviewType === 0 ? "Positive" : "Negative"}
                               </span>
                               <small className="text-muted">
                                 {formatDate(review.timestamp)}

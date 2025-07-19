@@ -186,7 +186,18 @@ export default function ExploreModels({ filters }) {
                   {getStatusBadge(model)}
                   <div className="score-badge">
                     <FiAward />
-                    <span>{stats?.averageSeverity ? (10 - stats.averageSeverity).toFixed(1) : "N/A"}</span>
+                    <span>
+                      {(() => {
+                        const totalReviews = stats?.totalReviews || 0;
+                        const avgSeverity = stats?.averageSeverity || 0;
+                        
+                        if (totalReviews === 0) {
+                          return "5.0";
+                        }
+                        const score = Math.max(0, Math.min(10, 10 - avgSeverity));
+                        return score.toFixed(1);
+                      })()}
+                    </span>
                   </div>
                 </div>
 

@@ -46,12 +46,11 @@ export default function ModelDetail() {
   const { isConnected, address } = useAccount()
   const { writeContractAsync, isPending } = useWriteContract()
   const queryClient = useQueryClient()
-  const { data: userData } = useUser()
   const { data: modelData, isLoading, error } = useModel(modelId)
   const latestProposal = getLatestProposal(modelData?.proposals)
 
   console.log(modelData)
-  console.log(userData)
+
   const handleInitiateProposal = async () => {
     if (!isConnected) {
       toast.error("Please connect your wallet first")

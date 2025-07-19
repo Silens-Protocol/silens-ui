@@ -14,6 +14,7 @@ import {
   FiShield,
   FiUsers,
   FiClock,
+  FiSearch,
 } from "../../assets/icons/vander";
 
 const ModelReviewSkeleton = () => (
@@ -70,6 +71,23 @@ const ModelReviewSkeleton = () => (
           <div className="animate-pulse bg-gray-300 h-8 w-full rounded"></div>
         </div>
       </div>
+    </div>
+  </div>
+);
+
+const EmptyState = () => (
+  <div className="col-12">
+    <div className="text-center py-5">
+      <div className="mb-4">
+        <FiSearch className="text-muted" style={{ fontSize: "4rem" }} />
+      </div>
+      <h5 className="text-muted mb-2">No Active Model Reviews</h5>
+      <p className="text-muted mb-4">
+        There are currently no AI models under community review. Check back later for new models that need your evaluation.
+      </p>
+      <Link href="/explore" className="btn btn-primary">
+        Explore Models
+      </Link>
     </div>
   </div>
 );
@@ -198,16 +216,24 @@ export default function ActiveModelReviews() {
         </div>
       </div>
 
-      <div className="row">
-        <div className="col-12 mt-3">
-          <div className="tiny-model-review-slider">
-            <TinySlider settings={settings}>
-              {isLoading ? (
-                Array.from({ length: 6 }).map((_, index) => (
+      {isLoading ? (
+        <div className="row">
+          <div className="col-12 mt-3">
+            <div className="tiny-model-review-slider">
+              <TinySlider settings={settings}>
+                {Array.from({ length: 6 }).map((_, index) => (
                   <ModelReviewSkeleton key={index} />
-                ))
-              ) : data?.models?.length > 0 ? (
-                data.models.map((model, index) => {
+                ))}
+              </TinySlider>
+            </div>
+          </div>
+        </div>
+      ) : data?.models?.length > 0 ? (
+        <div className="row">
+          <div className="col-12 mt-3">
+            <div className="tiny-model-review-slider">
+              <TinySlider settings={settings}>
+                {data.models.map((model, index) => {
                   const progress = calculateProgress(model);
                   const timeLeft = formatTimeLeft(model.reviewEndTime);
                   const averageSeverity = model.stats?.averageSeverity || 0;
@@ -363,20 +389,18 @@ export default function ActiveModelReviews() {
                       </div>
                     </div>
                   );
-                })
-              ) : (
-                <div className="tiny-slide">
-                  <div className="card model-review-card rounded-md shadow overflow-hidden mx-2 my-3">
-                    <div className="card-body p-4 text-center">
-                      <p className="text-muted mb-0">No models currently under review</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </TinySlider>
+                })}
+              </TinySlider>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="row">
+          <div className="col-12">
+            <EmptyState />
+          </div>
+        </div>
+      )}
 
       <div className="row">
         <div className="col">

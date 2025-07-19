@@ -162,7 +162,7 @@ export default function Footer() {
                         height={65}
                         alt="Silens Logo"
                         priority
-                        className="h-8 w-auto"
+                        className="h-12 w-auto"
                       />
                     </Link>
                     <p className="para-desc mb-0 mt-4">

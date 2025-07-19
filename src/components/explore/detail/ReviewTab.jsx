@@ -29,10 +29,13 @@ export default function ReviewTab({ modelData }) {
   const queryClient = useQueryClient()
 
   const isUnderReview = getStatusText(modelData.status, modelData.proposals) === "Under Review"
+  const isReviewPeriodActive = modelData.reviewEndTime && Date.now() < parseInt(modelData.reviewEndTime) * 1000
 
   const hasUserReviewed = modelData.reviews?.some(review => 
     review.reviewer?.owner?.toLowerCase() === address?.toLowerCase()
   )
+
+  const canReview = isUnderReview && isReviewPeriodActive
 
   const handleSubmitReview = async (reviewData) => {
     if (!isConnected) {
@@ -134,7 +137,7 @@ export default function ReviewTab({ modelData }) {
 
   return (
     <div className="tab-pane fade show active">
-      {isUnderReview && (
+      {canReview && (
         <div className="mb-4 d-flex justify-content-end">
           {!showReviewForm ? (
             hasUserReviewed ? (

@@ -21,7 +21,7 @@ export const getStatusText = (status, proposals = []) => {
         return "Pending Execution";
       }
       
-      if (latestProposal.majorityWon) {
+      if (latestProposal.status === 1) {
         switch (latestProposal.proposalType) {
           case 0:
             return "Approved";
@@ -32,7 +32,7 @@ export const getStatusText = (status, proposals = []) => {
           default:
             break;
         }
-      } else {
+      } else if (latestProposal.status === 2) {
         return getOriginalStatusText(status);
       }
     }
@@ -69,18 +69,18 @@ export const getStatusBadge = (status, proposals = []) => {
         return "bg-warning";
       }
       
-      if (latestProposal.majorityWon) {
+      if (latestProposal.status === 1) {
         switch (latestProposal.proposalType) {
-          case 0: // APPROVE
+          case 0:
             return "bg-success";
-          case 1: // FLAG
+          case 1:
             return "bg-danger";
-          case 2: // DELIST
+          case 2:
             return "bg-secondary";
           default:
             break;
         }
-      } else {
+      } else if (latestProposal.status === 2) {
         return getOriginalStatusBadge(status);
       }
     }
@@ -106,7 +106,7 @@ export const getProposalStatusText = (proposal) => {
     return "Active";
   }
   
-  if (proposal.majorityWon) {
+  if (proposal.status === 1) {
     switch (proposal.proposalType) {
       case 0:
         return "Approved";
@@ -117,8 +117,10 @@ export const getProposalStatusText = (proposal) => {
       default:
         return "Unknown";
     }
-  } else {
+  } else if (proposal.status === 2) {
     return "Failed";
+  } else {
+    return "Unknown";
   }
 }
 

@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useAccount, useWriteContract, useSignMessage } from "wagmi";
+import { useAccount, useWriteContract, useSignMessage, useReadContract } from "wagmi";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { IDENTITY_REGISTRY_CONTRACT, REPUTATION_SYSTEM_CONTRACT } from "@/constants";
 import { config } from "@/wagmi";
 import { encodeAbiParameters, keccak256 } from "viem";
 
 
-export default function StepTwo({ tokenId }) {
+export default function StepTwo() {
   const { isConnected, address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const { signMessageAsync } = useSignMessage();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { data: tokenId} = useReadContract({
+    ...IDENTITY_REGISTRY_CONTRACT,
+    functionName: 'getTokenIdByAddress',
+    args: [address],
+    query: {
+      enabled: isConnected && !!address,
+    },
+  });
 
   const [githubUsername, setGithubUsername] = useState("");
   const [isVerifyingGithub, setIsVerifyingGithub] = useState(false);
@@ -55,6 +66,11 @@ export default function StepTwo({ tokenId }) {
       return;
     }
 
+    if (!tokenId) {
+      toast.error("Token ID not found. Please ensure you have an identity token.");
+      return;
+    }
+
     const promise = async () => {
       setIsVerifyingOwnership(true);
 
@@ -90,6 +106,8 @@ export default function StepTwo({ tokenId }) {
         hash: result,
       });
 
+      await queryClient.invalidateQueries(['user', address]);
+
       setIsVerifyingOwnership(false);
       setOwnershipVerified(true);
       return result;
@@ -122,6 +140,8 @@ export default function StepTwo({ tokenId }) {
         hash: badgeResult,
       });
 
+      await queryClient.invalidateQueries(['user', address]);
+
       setIsMintingBadge(false);
       setBadgeMinted(true);
       return badgeResult;
@@ -129,7 +149,7 @@ export default function StepTwo({ tokenId }) {
 
     toast.promise(promise(), {
       loading: 'Minting Verified Reviewer Badge...',
-      success: 'Badge minted successfully! Redirecting to home...',
+      success: 'Badge minted successfully! Redirecting to profile...',
       error: (err) => `Error: ${err.message || 'Something went wrong'}`
     }).then(() => {
       setTimeout(() => {
@@ -138,10 +158,14 @@ export default function StepTwo({ tokenId }) {
     });
   };
 
-  const skipVerification = () => {
-    toast.success("Skipping verification. Redirecting to home...");
+  const skipVerification = async () => {
+    if (address) {
+      await queryClient.invalidateQueries(['user', address]);
+    }
+    
+    toast.success("Skipping verification. Redirecting to profile...");
     setTimeout(() => {
-      router.push('/');
+      router.push('/profile');
     }, 1000);
   };
 
@@ -154,6 +178,10 @@ export default function StepTwo({ tokenId }) {
       setGithubVerified(true);
       setGithubUsername(username);
       toast.success('GitHub account verified successfully!');
+      
+      if (address) {
+        queryClient.invalidateQueries(['user', address]);
+      }
       
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
@@ -174,7 +202,7 @@ export default function StepTwo({ tokenId }) {
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     }
-  }, []);
+  }, [address, queryClient]);
 
   return (
     <div className="verification-container">

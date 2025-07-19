@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
-import { readContract } from '@wagmi/core'
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { toast } from "react-hot-toast";
 import { IDENTITY_REGISTRY_CONTRACT } from "@/constants";
 import { pinata } from "@/utils/pinata";
 import { config } from "@/wagmi";
 
-export default function StepOne({ onNext, setTokenId }) {
+export default function StepOne({ onNext }) {
   const { isConnected, address } = useAccount();
   const { writeContractAsync, isPending } = useWriteContract();
 
@@ -114,18 +113,7 @@ export default function StepOne({ onNext, setTokenId }) {
         hash: result,
       });
 
-      try {
-        const tokenId = await readContract(config, {
-          ...IDENTITY_REGISTRY_CONTRACT,
-          functionName: 'getTokenIdByAddress',
-          args: [address],
-        });
-        setTokenId(tokenId);
-        onNext();
-      } catch (error) {
-        throw new Error("Failed to get token ID from transaction");
-      }
-
+      onNext();
       return result;
     };
 
@@ -440,6 +428,7 @@ export default function StepOne({ onNext, setTokenId }) {
           font-weight: 500;
           margin-bottom: 0.5rem;
           font-size: 0.9rem;
+          text-align: left;
         }
         
         .required {

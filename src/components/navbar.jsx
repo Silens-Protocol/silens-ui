@@ -222,9 +222,8 @@ export default function Navbar({ navlight, gradient }) {
           <li className="list-inline-item mb-0 me-2">
             <ConnectWallet navlight={navlight} />
           </li>
-          {isConnected && (
+          {isConnected && profilePictureUrl && (
             <li className="list-inline-item mb-0">
-              {profilePictureUrl ? (
                 <div className="position-relative d-inline-block" style={{ width: 36, height: 36 }}>
                   <Image
                     src={profilePictureUrl}
@@ -237,11 +236,6 @@ export default function Navbar({ navlight, gradient }) {
                     quality={100}
                   />
                 </div>
-              ) : (
-                <div className="rounded-pill avatar avatar-sm-sm d-flex align-items-center justify-content-center bg-light">
-                  <AiOutlineUser className="text-muted" size={20} />
-                </div>
-              )}
             </li>
           )}
         </ul>
