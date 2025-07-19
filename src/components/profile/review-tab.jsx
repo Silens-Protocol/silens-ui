@@ -9,10 +9,16 @@ import { FaThumbsUp as ThumbsUpIcon } from "react-icons/fa";
 import { FaThumbsDown as ThumbsDownIcon } from "react-icons/fa";
 import { FaRegCommentDots as CommentIcon } from "react-icons/fa";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ReviewTab() {
+  const router = useRouter();
   const { address } = useAccount();
   const { data: reviewsData, isLoading, error } = useUserReviews(address);
+
+  const handleViewModel = (modelId) => {
+    router.push(`/explore/${modelId}`);
+  };
 
   if (isLoading) {
     return (
@@ -88,7 +94,7 @@ export default function ReviewTab() {
                       </div>
                     )}
                     <div>
-                      <h6 className="mb-1 fw-bold text-dark">
+                      <h6 className="mb-1 fw-bold text-dark" onClick={() => handleViewModel(review.model?.id)} style={{ cursor: 'pointer' }}>
                         {review.model?.metadata?.name || `Model #${review.model?.id}`}
                       </h6>
                       <small className="text-muted">
@@ -159,21 +165,6 @@ export default function ReviewTab() {
                             </div>
                           </div>
                         )}
-                      </div>
-                    )}
-                    
-                    {review.metadata.screenshotUrl && (
-                      <div className="mb-2">
-                        <label className="form-label fw-semibold text-muted mb-1 small">Screenshot:</label>
-                        <div className="text-center">
-                          <Image
-                            src={review.metadata.screenshotUrl}
-                            width={300}
-                            height={200}
-                            className="img-fluid rounded-3 shadow-sm border"
-                            alt="Review screenshot"
-                          />
-                        </div>
                       </div>
                     )}
                   </div>

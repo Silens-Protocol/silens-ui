@@ -5,7 +5,7 @@ import { FaUserCircle as UserIcon } from "react-icons/fa"
 
 export default function DetailTab({ modelData }) {
   return (
-    <div className="tab-pane fade show active">
+    <div>
       <div className="row g-5">
         <div className="col-lg-8">
           <div className="mb-5">

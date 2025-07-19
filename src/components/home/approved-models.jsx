@@ -106,7 +106,22 @@ export default function ApprovedModels({ filter = true, limit = 12 }) {
   const [sortBy, setSortBy] = useState("recent");
 
   const filteredData = selectedCategory
-    ? (data?.models || []).filter((item) => item.metadata?.category?.toLowerCase() === selectedCategory)
+    ? (data?.models || []).filter((item) => {
+        const itemCategory = item.metadata?.category?.toLowerCase();
+        const selectedCategoryLower = selectedCategory.toLowerCase();
+        
+        const categoryMapping = {
+          'safety': 'safety & security',
+          'fairness': 'fairness & bias',
+          'privacy': 'privacy protection',
+          'ethics': 'ethics & values',
+          'transparency': 'transparency'
+        };
+        
+        const mappedCategory = categoryMapping[selectedCategoryLower];
+        
+        return itemCategory === mappedCategory || itemCategory === selectedCategoryLower;
+      })
     : (data?.models || []);
 
   const sortedData = [...filteredData].sort((a, b) => {
@@ -291,7 +306,10 @@ export default function ApprovedModels({ filter = true, limit = 12 }) {
                         {getCategoryIcon(model.metadata?.category)}
                       </div>
                       <h6 className="mb-1">{model.metadata?.name || "Unnamed Model"}</h6>
-                      <p className="text-muted small mb-0">
+                      <p 
+                        className="text-muted small mb-0 text-truncate-2-lines"
+                        style={{ minHeight: "48px" }}
+                      >
                         {model.metadata?.summary || "No description available"}
                       </p>
                     </div>

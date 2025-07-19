@@ -6,7 +6,9 @@ const fetchUserData = async (address) => {
   const response = await fetch(`${baseUrl}/users/${address}`);
   
   if (!response.ok) {
-    throw new Error('Failed to fetch user data');
+    const error = new Error('Failed to fetch user data');
+    error.status = response.status;
+    throw error;
   }
   
   return response.json();
@@ -54,6 +56,13 @@ export const useUser = () => {
     enabled: isConnected && !!address,
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error.status === 404) {
+        return false;
+      }
+      return failureCount < 1;
+    },
+    retryDelay: 1000,
   });
 };
 

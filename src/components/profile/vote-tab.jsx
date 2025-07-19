@@ -5,16 +5,20 @@ import { useAccount } from 'wagmi';
 import { useUserVotes } from '../../hooks/useUser';
 import { getProposalTypeText, getProposalStatusText, getStatusText, formatDate, formatAddress } from '../../utils/utils';
 import { CiCalendar as CalendarIcon } from "react-icons/ci";
-import { FaVoteYea as VoteIcon } from "react-icons/fa";
 import { FaCheckCircle as CheckIcon } from "react-icons/fa";
 import { FaTimesCircle as TimesIcon } from "react-icons/fa";
 import { FaRegCommentDots as CommentIcon } from "react-icons/fa";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function VoteTab() {
   const { address } = useAccount();
   const { data: votesData, isLoading, error } = useUserVotes(address);
+  const router = useRouter();
+
+  const handleViewModel = (modelId) => {
+    router.push(`/explore/${modelId}`);
+  };
 
   if (isLoading) {
     return (
@@ -93,7 +97,7 @@ export default function VoteTab() {
                       )}
                     </div>
                     <div>
-                      <h5 className="mb-1 fw-bold text-dark">
+                      <h5 className="mb-1 fw-bold text-dark" onClick={() => handleViewModel(vote.model?.id)} style={{ cursor: 'pointer' }}>
                         {vote.model?.metadata?.name || `Model #${vote.model?.id}`}
                       </h5>
                       <p className="mb-2 text-muted small">
@@ -114,10 +118,6 @@ export default function VoteTab() {
                       </div>
                     </div>
                   </div>
-                  <Link href={`/explore/${vote.model?.id}`} className="btn btn-outline-primary btn-sm">
-                    <VoteIcon className="me-1" />
-                    View Model
-                  </Link>
                 </div>
 
                 <div className="row g-3 mb-4">

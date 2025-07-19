@@ -288,12 +288,21 @@ export default function ExploreModels({ filters }) {
                         <div
                           className="vote-fill"
                           style={{
-                            width: `${(model.proposals[0]?.forVotes / (model.proposals[0]?.forVotes + model.proposals[0]?.againstVotes)) * 100}%`,
+                            width: `${(() => {
+                              const forVotes = model.proposals[0]?.forVotes || 0;
+                              const againstVotes = model.proposals[0]?.againstVotes || 0;
+                              const totalVotes = forVotes + againstVotes;
+                              
+                              if (totalVotes === 0) return 0;
+                              return (forVotes / totalVotes) * 100;
+                            })()}%`,
                           }}
                         />
                       </div>
                       <span className="vote-text">
-                        {model.proposals[0]?.forVotes || 0}% approval
+                        {model.proposals[0]?.forVotes && model.proposals[0]?.againstVotes !== undefined 
+                          ? Math.round((model.proposals[0].forVotes / (model.proposals[0].forVotes + model.proposals[0].againstVotes)) * 100)
+                          : 0}% approval
                       </span>
                       {isProposalActive(model.proposals[0]) && (
                         <div className="active-voting-indicator">

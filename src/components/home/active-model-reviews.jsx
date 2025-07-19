@@ -95,13 +95,20 @@ const EmptyState = () => (
 export default function ActiveModelReviews() {
   const { data, isLoading, error } = useModelsUnderReview({ limit: 6 });
 
+  const shouldEnableAutoplay = () => {
+    if (!data?.models) return false;
+    
+    const itemsPerView = 3;
+    return data.models.length > itemsPerView;
+  };
+
   const settings = {
     container: ".tiny-model-review-slider",
     controls: true,
     mouseDrag: true,
-    loop: true,
-    rewind: true,
-    autoplay: true,
+    loop: shouldEnableAutoplay(),
+    rewind: shouldEnableAutoplay(),
+    autoplay: shouldEnableAutoplay(),
     autoplayButtonOutput: false,
     autoplayTimeout: 4000,
     navPosition: "bottom",
@@ -140,7 +147,7 @@ export default function ActiveModelReviews() {
   const formatTimeLeft = (reviewEndTime) => {
     try {
       const now = Date.now();
-      const endTime = parseInt(reviewEndTime) * 1000; // Convert from seconds to milliseconds
+      const endTime = parseInt(reviewEndTime) * 1000;
       const timeLeft = endTime - now;
       
       if (timeLeft <= 0) return "Review Period Ended";

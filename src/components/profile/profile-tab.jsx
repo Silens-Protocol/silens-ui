@@ -1,11 +1,21 @@
 "use client";
+
 import React, { useState } from "react";
 import ModelTab from "./model-tab";
 import ReviewTab from "./review-tab";
 import VoteTab from "./vote-tab";
+import { useAccount } from "wagmi";
+import { useUser } from "../../hooks/useUser";
 
 export default function ProfileTab() {
   const [activeTab, setActiveTab] = useState(1);
+  const { isConnected } = useAccount();
+  const { data: userData } = useUser();
+
+  const hasIdentityToken = !!userData?.identity?.tokenId;
+  const shouldShowTabs = isConnected && hasIdentityToken;
+
+  if (!shouldShowTabs) return null;
 
   return (
     <div className="container mt-100 mt-60">

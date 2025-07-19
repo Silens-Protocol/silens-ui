@@ -9,7 +9,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import Navbar from "../../../components/navbar"
 import Footer from "../../../components/footer"
 import { useModel } from "../../../hooks/useModelData"
-import { useUser } from "../../../hooks/useUser"
 import { getStatusBadge, getStatusText, isProposalActive, getProposalTimeRemaining, getLatestProposal } from "../../../utils/utils"
 import { SILENS_CONTRACT, VOTING_PROPOSAL_CONTRACT } from "../../../constants"
 import { config } from "../../../wagmi"
@@ -39,6 +38,167 @@ const CommentSquareTextIcon = FaRegCommentDots
 const ThumbsUpIcon = FaThumbsUp
 const VoteYeaIcon = FaVoteYea
 
+const ModelDetailSkeleton = () => (
+  <>
+    <Navbar navlight={true} />
+    
+    <section
+      className="position-relative overflow-hidden"
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        minHeight: "60vh",
+      }}
+    >
+      <div className="container position-relative d-flex align-items-center justify-content-center text-center"
+           style={{ zIndex: 2, minHeight: "60vh" }}>
+        <div className="row justify-content-center">
+          <div className="col-lg-10">
+            <div className="mb-4">
+              <div className="skeleton-badge animate-pulse"></div>
+            </div>
+            
+            <div className="skeleton-title animate-pulse mb-4"></div>
+            
+            <div className="skeleton-description animate-pulse mb-4"></div>
+            
+            <div className="d-flex justify-content-center gap-3 flex-wrap">
+              <div className="skeleton-tag animate-pulse"></div>
+              <div className="skeleton-tag animate-pulse"></div>
+              <div className="skeleton-tag animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section className="py-5" style={{ background: "linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%)" }}>
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-lg-11">
+            <div className="row g-4 mb-5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="col-lg-3 col-md-6">
+                  <div className="card border-0 shadow-sm h-100">
+                    <div className="card-body text-center p-4">
+                      <div className="skeleton-icon animate-pulse mb-3"></div>
+                      <div className="skeleton-stat-label animate-pulse mb-2"></div>
+                      <div className="skeleton-stat-value animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="card border-0 shadow-sm overflow-hidden">
+              <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
+                <div className="d-flex justify-content-center mb-3">
+                  <div className="skeleton-tab animate-pulse mx-2"></div>
+                  <div className="skeleton-tab animate-pulse mx-2"></div>
+                  <div className="skeleton-tab animate-pulse mx-2"></div>
+                </div>
+              </div>
+
+              <div className="card-body p-5">
+                <div className="row">
+                  <div className="col-lg-8">
+                    <div className="skeleton-content-line animate-pulse mb-3"></div>
+                    <div className="skeleton-content-line animate-pulse mb-3"></div>
+                    <div className="skeleton-content-line animate-pulse mb-3"></div>
+                    <div className="skeleton-content-line animate-pulse mb-3 w-75"></div>
+                  </div>
+                  <div className="col-lg-4">
+                    <div className="skeleton-sidebar animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <Footer />
+
+    <style jsx>{`
+      .skeleton-badge {
+        width: 200px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        margin: 0 auto;
+      }
+
+      .skeleton-title {
+        width: 80%;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        margin: 0 auto;
+      }
+
+      .skeleton-description {
+        width: 70%;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        margin: 0 auto;
+      }
+
+      .skeleton-tag {
+        width: 80px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+      }
+
+      .skeleton-icon {
+        width: 48px;
+        height: 48px;
+        background: #e9ecef;
+        border-radius: 50%;
+        margin: 0 auto;
+      }
+
+      .skeleton-stat-label {
+        width: 100px;
+        height: 16px;
+        background: #e9ecef;
+        border-radius: 4px;
+        margin: 0 auto;
+      }
+
+      .skeleton-stat-value {
+        width: 60px;
+        height: 32px;
+        background: #e9ecef;
+        border-radius: 4px;
+        margin: 0 auto;
+      }
+
+      .skeleton-tab {
+        width: 120px;
+        height: 48px;
+        background: #e9ecef;
+        border-radius: 24px;
+      }
+
+      .skeleton-content-line {
+        width: 100%;
+        height: 16px;
+        background: #e9ecef;
+        border-radius: 4px;
+      }
+
+      .skeleton-sidebar {
+        width: 100%;
+        height: 200px;
+        background: #e9ecef;
+        border-radius: 8px;
+      }
+    `}</style>
+  </>
+)
+
 export default function ModelDetail() {
   const params = useParams()
   const modelId = params.id
@@ -48,8 +208,6 @@ export default function ModelDetail() {
   const queryClient = useQueryClient()
   const { data: modelData, isLoading, error } = useModel(modelId)
   const latestProposal = getLatestProposal(modelData?.proposals)
-
-  console.log(modelData)
 
   const handleInitiateProposal = async () => {
     if (!isConnected) {
@@ -117,23 +275,7 @@ export default function ModelDetail() {
   }
 
   if (isLoading) {
-    return (
-      <>
-        <Navbar navlight={true} />
-        <div className="container" style={{ minHeight: "70vh" }}>
-          <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
-            <div className="text-center">
-              <div className="spinner-border text-primary mb-4" role="status" style={{ width: "3rem", height: "3rem" }}>
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <h4 className="text-muted fw-light">Loading model details...</h4>
-              <p className="text-muted">Please wait while we fetch the information</p>
-            </div>
-          </div>
-        </div>
-        <Footer />
-      </>
-    )
+    return <ModelDetailSkeleton />
   }
 
   if (error) {
@@ -199,22 +341,6 @@ export default function ModelDetail() {
           minHeight: "60vh",
         }}
       >
-        <div
-          className="position-absolute top-0 start-0 w-100 h-100"
-          style={{
-            backgroundImage: modelData.metadata?.imageUrl
-              ? `url('${modelData.metadata.imageUrl}')`
-              : 'url("/images/bg/bg01.jpg")',
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            filter: "blur(3px) brightness(0.3)",
-            opacity: "0.4",
-            zIndex: 0,
-          }}
-        ></div>
-
-        <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"></div>
 
         <div
           className="container position-relative d-flex align-items-center justify-content-center text-center"
@@ -331,7 +457,7 @@ export default function ModelDetail() {
           <div className="row justify-content-center">
             <div className="col-lg-11">
               <div className="row g-4 mb-5">
-                <div className="col-lg-3 col-md-6">
+                <div className="col-lg-4 col-md-6">
                   <div
                     className="card border-0 shadow-sm h-100 bg-gradient"
                     style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
@@ -346,7 +472,7 @@ export default function ModelDetail() {
                   </div>
                 </div>
 
-                <div className="col-lg-3 col-md-6">
+                <div className="col-lg-4 col-md-6">
                   <div
                     className="card border-0 shadow-sm h-100 bg-gradient"
                     style={{ background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" }}
@@ -361,7 +487,7 @@ export default function ModelDetail() {
                   </div>
                 </div>
 
-                <div className="col-lg-3 col-md-6">
+                <div className="col-lg-4 col-md-6">
                   <div
                     className="card border-0 shadow-sm h-100 bg-gradient"
                     style={{ background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" }}
@@ -372,21 +498,6 @@ export default function ModelDetail() {
                       </div>
                       <h6 className="text-uppercase mb-2 fw-light text-black">Critical Reviews</h6>
                       <h2 className="mb-0 fw-bold text-black">{modelData.stats?.criticalReviewsCount || 0}</h2>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-lg-3 col-md-6">
-                  <div
-                    className="card border-0 shadow-sm h-100 bg-gradient"
-                    style={{ background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" }}
-                  >
-                    <div className="card-body text-center p-4">
-                      <div className="bg-white bg-opacity-75 rounded-circle p-3 d-inline-flex mb-3">
-                        <ClipboardCheckIcon size={24} color="#fa709a" />
-                      </div>
-                      <h6 className="text-uppercase mb-2 fw-light text-black">Proposals</h6>
-                      <h2 className="mb-0 fw-bold text-black">{modelData.stats?.proposalCount || 0}</h2>
                     </div>
                   </div>
                 </div>
@@ -440,7 +551,7 @@ export default function ModelDetail() {
                   </ul>
                 </div>
 
-                <div className="card-body p-5">
+                <div className="p-5">
                   <div className="tab-content">
                     {activeTab === 1 && (
                       <DetailTab modelData={modelData} />

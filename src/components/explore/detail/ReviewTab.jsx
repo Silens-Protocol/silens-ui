@@ -14,16 +14,62 @@ import { FaThumbsDown as ThumbsDownIcon } from "react-icons/fa"
 import { FaRegCommentDots as CommentIcon } from "react-icons/fa"
 import { FaPlus as PlusIcon } from "react-icons/fa"
 import { FaCheck as CheckIcon } from "react-icons/fa"
+import { FaTimes as CloseIcon } from "react-icons/fa"
+import { FaExpand as ExpandIcon } from "react-icons/fa"
 import ReviewForm from "./ReviewForm"
 import { MODEL_REGISTRY_CONTRACT } from "../../../constants"
 import { pinata } from "../../../utils/pinata"
 import { config } from "../../../wagmi"
+
+// Screenshot Modal Component
+const ScreenshotModal = ({ isOpen, onClose, imageUrl, reviewerName }) => {
+  if (!isOpen) return null
+
+  return (
+    <div 
+      className="modal fade show d-block" 
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+      onClick={onClose}
+    >
+      <div className="modal-dialog modal-xl modal-dialog-centered">
+        <div className="modal-content border-0 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header border-0 bg-gradient-primary text-white">
+            <h5 className="modal-title fw-semibold">
+              <ExpandIcon className="me-2" />
+              Screenshot by {reviewerName}
+            </h5>
+            <button 
+              type="button" 
+              className="btn-close btn-close-white" 
+              onClick={onClose}
+            >
+              <CloseIcon />
+            </button>
+          </div>
+          <div className="modal-body p-0">
+            <div className="text-center p-4">
+              <Image
+                src={imageUrl}
+                width={800}
+                height={600}
+                className="img-fluid rounded-3 shadow-sm"
+                alt="Review screenshot"
+                style={{ maxHeight: '70vh', objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function ReviewTab({ modelData }) {
   const params = useParams()
   const modelId = params.id
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedScreenshot, setSelectedScreenshot] = useState(null)
   const { isConnected, address } = useAccount()
   const { writeContractAsync } = useWriteContract()
   const queryClient = useQueryClient()
@@ -36,6 +82,14 @@ export default function ReviewTab({ modelData }) {
   )
 
   const canReview = isUnderReview && isReviewPeriodActive
+
+  const handleScreenshotClick = (imageUrl, reviewerName) => {
+    setSelectedScreenshot({ imageUrl, reviewerName })
+  }
+
+  const closeScreenshotModal = () => {
+    setSelectedScreenshot(null)
+  }
 
   const handleSubmitReview = async (reviewData) => {
     if (!isConnected) {
@@ -142,7 +196,7 @@ export default function ReviewTab({ modelData }) {
           {!showReviewForm ? (
             hasUserReviewed ? (
               <button
-                className="btn btn-success px-3 py-2 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
+                className="btn btn-success px-4 py-3 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
                 disabled
               >
                 <CheckIcon className="me-2" />
@@ -150,7 +204,7 @@ export default function ReviewTab({ modelData }) {
               </button>
             ) : (
               <button
-                className="btn btn-primary px-3 py-2 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
+                className="btn btn-primary px-4 py-3 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
                 onClick={() => setShowReviewForm(true)}
                 disabled={isSubmitting}
               >
@@ -172,7 +226,7 @@ export default function ReviewTab({ modelData }) {
         <div className="row g-4">
           {modelData.reviews.map((review, index) => (
             <div key={review.id} className="col-12">
-              <div className="card border-0 shadow-sm h-100 bg-light">
+              <div className="card border-0 shadow-sm h-100 review-card">
                 <div className="card-body p-4">
                   <div className="d-flex justify-content-between align-items-start mb-4">
                     <div className="d-flex align-items-center">
@@ -184,9 +238,11 @@ export default function ReviewTab({ modelData }) {
                           className="rounded-circle shadow-sm border border-3 border-white"
                           alt=""
                         />
+                        <div className="position-absolute bottom-0 end-0 bg-success rounded-circle border border-2 border-white"
+                             style={{ width: '16px', height: '16px' }}></div>
                       </div>
                       <div>
-                        <h6 className="mb-1 fw-bold">
+                        <h6 className="mb-1 fw-bold text-dark">
                           {review.reviewer?.profile?.name || formatAddress(review.reviewer?.owner)}
                         </h6>
                         <small className="text-muted d-flex align-items-center">
@@ -199,8 +255,8 @@ export default function ReviewTab({ modelData }) {
                       <span
                         className={`badge ${
                           getReviewTypeText(review.reviewType) === "Positive"
-                            ? "bg-success"
-                            : "bg-danger"
+                            ? "bg-success bg-opacity-10 text-white"
+                            : "bg-danger bg-opacity-10 text-white"
                         } me-2 px-3 py-2 rounded-pill fw-semibold`}
                       >
                         {getReviewTypeText(review.reviewType) === "Positive" ? (
@@ -220,18 +276,22 @@ export default function ReviewTab({ modelData }) {
 
                   {review.metadata && (
                     <div>
-                      <p className="mb-4 lead text-dark lh-lg">
-                        {review.metadata.comment || "No comment provided"}
-                      </p>
+                      <div className="review-comment mb-4">
+                        <p className="mb-0 lead text-dark lh-lg fw-normal">
+                          {review.metadata.comment || "No comment provided"}
+                        </p>
+                      </div>
                       
                       {(review.metadata.prompt || review.metadata.output) && (
                         <div className="mb-4">
-                          <h6 className="fw-bold mb-3 text-dark">Test Details</h6>
+                          <h6 className="fw-bold mb-3 text-dark d-flex align-items-center">
+                            Test Details
+                          </h6>
                           
                           {review.metadata.prompt && (
                             <div className="mb-3">
                               <label className="form-label fw-semibold text-muted mb-2">Prompt:</label>
-                              <div className="bg-light p-3 rounded-3 border">
+                              <div className="bg-light p-3 rounded-3 border-start border-4 border-primary">
                                 <p className="mb-0 text-dark">{review.metadata.prompt}</p>
                               </div>
                             </div>
@@ -240,7 +300,7 @@ export default function ReviewTab({ modelData }) {
                           {review.metadata.output && (
                             <div className="mb-3">
                               <label className="form-label fw-semibold text-muted mb-2">Model Output:</label>
-                              <div className="bg-light p-3 rounded-3 border">
+                              <div className="bg-light p-3 rounded-3 border-start border-4 border-success">
                                 <p className="mb-0 text-dark">{review.metadata.output}</p>
                               </div>
                             </div>
@@ -252,13 +312,24 @@ export default function ReviewTab({ modelData }) {
                         <div className="mb-3">
                           <label className="form-label fw-semibold text-muted mb-2">Screenshot:</label>
                           <div className="text-center">
-                            <Image
-                              src={review.metadata.screenshotUrl}
-                              width={500}
-                              height={300}
-                              className="img-fluid rounded-4 shadow-sm border"
-                              alt="Review screenshot"
-                            />
+                            <div 
+                              className="screenshot-container position-relative d-inline-block cursor-pointer"
+                              onClick={() => handleScreenshotClick(
+                                review.metadata.screenshotUrl, 
+                                review.reviewer?.profile?.name || formatAddress(review.reviewer?.owner)
+                              )}
+                            >
+                              <Image
+                                src={review.metadata.screenshotUrl}
+                                width={500}
+                                height={300}
+                                className="img-fluid rounded-4 shadow-sm border"
+                                alt="Review screenshot"
+                              />
+                              <div className="screenshot-overlay">
+                                <ExpandIcon className="text-white" size={24} />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -272,7 +343,7 @@ export default function ReviewTab({ modelData }) {
       ) : (
         <div className="text-center py-5">
           <div className="bg-light rounded-circle p-4 d-inline-flex mb-4">
-            <CommentIcon className="text-muted" />
+            <CommentIcon className="text-muted" size={32} />
           </div>
           <h4 className="text-muted mb-2">No Reviews Yet</h4>
           <p className="text-muted">
@@ -280,6 +351,60 @@ export default function ReviewTab({ modelData }) {
           </p>
         </div>
       )}
+
+      <ScreenshotModal
+        isOpen={!!selectedScreenshot}
+        onClose={closeScreenshotModal}
+        imageUrl={selectedScreenshot?.imageUrl}
+        reviewerName={selectedScreenshot?.reviewerName}
+      />
+
+      <style jsx>{`
+        .review-card {
+          transition: all 0.3s ease;
+          border-radius: 16px;
+        }
+
+        .review-comment {
+          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+          padding: 20px;
+          border-radius: 12px;
+          border-left: 4px solid #667eea;
+        }
+
+        .screenshot-container {
+          transition: all 0.3s ease;
+          border-radius: 16px;
+          overflow: hidden;
+        }
+
+        .screenshot-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          border-radius: 16px;
+        }
+
+        .screenshot-container:hover .screenshot-overlay {
+          opacity: 1;
+        }
+
+        .cursor-pointer {
+          cursor: pointer;
+        }
+
+        .bg-gradient-primary {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+      `}</style>
     </div>
   )
 }

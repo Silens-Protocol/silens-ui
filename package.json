@@ -30,6 +30,7 @@
     "react-type-animation": "^3.2.0",
     "sass": "^1.74.1",
     "scss": "^0.2.4",
+    "sharp": "^0.34.3",
     "tiny-slider-react": "^0.5.7",
     "viem": "^2.31.7",
     "wagmi": "^2.14.15"
