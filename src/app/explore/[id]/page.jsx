@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import Navbar from "../../../components/navbar"
 import Footer from "../../../components/footer"
 import { useModel } from "../../../hooks/useModelData"
+import { useUser } from "../../../hooks/useUser"
 import { getStatusBadge, getStatusText, isProposalActive, getProposalTimeRemaining, getLatestProposal } from "../../../utils/utils"
 import { SILENS_CONTRACT, VOTING_PROPOSAL_CONTRACT } from "../../../constants"
 import { config } from "../../../wagmi"
@@ -45,10 +46,12 @@ export default function ModelDetail() {
   const { isConnected, address } = useAccount()
   const { writeContractAsync, isPending } = useWriteContract()
   const queryClient = useQueryClient()
-
+  const { data: userData } = useUser()
   const { data: modelData, isLoading, error } = useModel(modelId)
   const latestProposal = getLatestProposal(modelData?.proposals)
 
+  console.log(modelData)
+  console.log(userData)
   const handleInitiateProposal = async () => {
     if (!isConnected) {
       toast.error("Please connect your wallet first")

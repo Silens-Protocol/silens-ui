@@ -1,7 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Wallet } from "lucide-react";
 
-export default function ConnectWallet() {
+export default function ConnectWallet({ navlight }) {
   return (
     <ConnectButton.Custom>
       {({
@@ -34,78 +34,201 @@ export default function ConnectWallet() {
             {(() => {
               if (!connected) {
                 return (
-                  <button
-                    onClick={openConnectModal}
-                    type="button"
-                    className="btn btn-pills d-inline-flex align-items-center"
-                    style={{
-                      border: 'none',
-                      background: '#4072c2',
-                      transition: 'all 0.3s ease',
-                      color: 'white'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = 'scale(1)';
-                    }}
-                  >
-                    <Wallet className="me-2" style={{ animation: 'pulse 2s infinite' }} />
-                    Connect Wallet
-                  </button>
+                  <>
+                    {navlight ? (
+                      <span>
+                        <span className="btn-icon-dark">
+                          <button
+                            onClick={openConnectModal}
+                            type="button"
+                            className="btn btn-icon btn-pills btn-light"
+                            style={{
+                              border: 'none',
+                              transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'scale(1)';
+                            }}
+                          >
+                            <Wallet className="fs-6" />
+                          </button>
+                        </span>
+                        <span className="btn-icon-light">
+                          <button
+                            onClick={openConnectModal}
+                            type="button"
+                            className="btn btn-icon btn-pills btn-light"
+                            style={{
+                              border: 'none',
+                              transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'scale(1)';
+                            }}
+                          >
+                            <Wallet className="fs-6" />
+                          </button>
+                        </span>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={openConnectModal}
+                        type="button"
+                        className="btn btn-icon btn-pills btn-light"
+                        style={{
+                          border: 'none',
+                          transition: 'all 0.3s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <Wallet className="fs-6" />
+                      </button>
+                    )}
+                  </>
                 );
               }
 
               if (chain.unsupported) {
                 return (
-                  <button
-                    onClick={openChainModal}
-                    type="button"
-                    className="btn btn-pills"
-                    style={{
-                      border: 'none',
-                      background: '#4072c2',
-                      transition: 'all 0.3s ease',
-                      color: 'white'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = 'scale(1)';
-                    }}
-                  >
-                    Wrong network
-                  </button>
+                  <>
+                    {navlight ? (
+                      <span>
+                        <span className="btn-icon-dark">
+                          <button
+                            onClick={openChainModal}
+                            type="button"
+                            className="btn btn-icon btn-pills btn-light"
+                            style={{
+                              border: 'none',
+                              transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'scale(1)';
+                            }}
+                          >
+                            <Wallet className="fs-6" />
+                          </button>
+                        </span>
+                        <span className="btn-icon-light">
+                          <button
+                            onClick={openChainModal}
+                            type="button"
+                            className="btn btn-icon btn-pills btn-light"
+                            style={{
+                              border: 'none',
+                              transition: 'all 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'scale(1)';
+                            }}
+                          >
+                            <Wallet className="fs-6" />
+                          </button>
+                        </span>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={openChainModal}
+                        type="button"
+                        className="btn btn-icon btn-pills btn-light"
+                        style={{
+                          border: 'none',
+                          transition: 'all 0.3s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <Wallet className="fs-6" />
+                      </button>
+                    )}
+                  </>
                 );
               }
 
               return (
-                <div className="d-flex flex-column flex-md-row gap-3">
-                  <button
-                    onClick={openAccountModal}
-                    className="btn btn-pills"
-                    style={{
-                      border: 'none',
-                      background: '#4072c2',
-                      transition: 'all 0.3s ease',
-                      color: 'white'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = 'scale(1)';
-                    }}
-                    type="button"
-                  >
-                    {account.displayName}
-                    {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ""}
-                  </button>
-                </div>
+                <>
+                  {navlight ? (
+                    <span>
+                      <span className="btn-icon-dark">
+                        <button
+                          onClick={openAccountModal}
+                          className="btn btn-icon btn-pills btn-light"
+                          style={{
+                            border: 'none',
+                            transition: 'all 0.3s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'scale(1)';
+                          }}
+                          type="button"
+                        >
+                          <Wallet className="fs-6" />
+                        </button>
+                      </span>
+                      <span className="btn-icon-light">
+                        <button
+                          onClick={openAccountModal}
+                          className="btn btn-icon btn-pills btn-light"
+                          style={{
+                            border: 'none',
+                            transition: 'all 0.3s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'scale(1)';
+                          }}
+                          type="button"
+                        >
+                          <Wallet className="fs-6" />
+                        </button>
+                      </span>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={openAccountModal}
+                      className="btn btn-icon btn-pills btn-light"
+                      style={{
+                        border: 'none',
+                        transition: 'all 0.3s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                      type="button"
+                    >
+                      <Wallet className="fs-6" />
+                    </button>
+                  )}
+                </>
               );
             })()}
           </div>

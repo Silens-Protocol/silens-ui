@@ -7,13 +7,14 @@ export const useModels = (options = {}) => {
     limit = 50,
     offset = 0,
     status,
+    excludeStatus,
     submitter,
     includeRelated = true,
     ...queryOptions
   } = options;
 
   return useQuery({
-    queryKey: ['models', { limit, offset, status, submitter, includeRelated }],
+    queryKey: ['models', { limit, offset, status, excludeStatus, submitter, includeRelated }],
     queryFn: async () => {
       const params = new URLSearchParams({
         limit: limit.toString(),
@@ -22,6 +23,7 @@ export const useModels = (options = {}) => {
       });
 
       if (status !== undefined) params.append('status', status.toString());
+      if (excludeStatus !== undefined) params.append('excludeStatus', excludeStatus.toString());
       if (submitter) params.append('submitter', submitter);
 
       const response = await fetch(`${API_BASE_URL}/models?${params}`);
@@ -200,7 +202,7 @@ export const useApprovedModels = (options = {}) => {
       const params = new URLSearchParams({
         limit: limit.toString(),
         offset: offset.toString(),
-        status: '1', // APPROVED status
+        status: '1',
         includeRelated: 'true'
       });
 

@@ -16,7 +16,7 @@ export default function Footer() {
   const [visible, setVisible] = useState(false)
 
   const { isConnected } = useAccount()
-  const { data: userData, isLoading } = useUser()
+  const { data: userData } = useUser()
 
   const isUserVerified =
     isConnected && userData && hasIdentityAndVerified(userData)
@@ -137,7 +137,6 @@ export default function Footer() {
   return (
     <>
       <footer className="bg-footer">
-        {/* CTA Section */}
         <div className="py-5">
           <div className="container">
             <div className="row justify-content-center">
@@ -150,19 +149,17 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Main Footer Content */}
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-12 col-lg-10">
               <div className="footer-py-60 footer-border">
                 <div className="row g-4">
-                  {/* Brand Section */}
                   <div className="col-lg-8 mb-4 mb-lg-0">
                     <Link href="/" className="logo-footer d-inline-block">
                       <Image
                         src="/images/logo-full-light.png"
                         width={120}
-                        height={35}
+                        height={65}
                         alt="Silens Logo"
                         priority
                         className="h-8 w-auto"
@@ -174,7 +171,6 @@ export default function Footer() {
                     </p>
                   </div>
 
-                  {/* Navigation Links */}
                   <div className="col-lg-4">
                     <h5 className="footer-head">Silens</h5>
                     <ul className="list-unstyled footer-list mt-4">
@@ -204,7 +200,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Footer Bottom */}
         <div className="footer-py-30 footer-bar">
           <div className="container">
             <div className="row justify-content-center align-items-center">
@@ -218,7 +213,6 @@ export default function Footer() {
         </div>
       </footer>
 
-      {/* Back to Top Button */}
       <Link
         href="#"
         id="back-to-top"

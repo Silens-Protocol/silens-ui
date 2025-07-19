@@ -17,6 +17,7 @@ export default function ModelFilterForm({ onFilterChange }) {
     { value: "under_review", label: "Under Review" },
     { value: "approved", label: "Approved Models" },
     { value: "flagged", label: "Flagged Models" },
+    { value: "delisted", label: "Delisted Models" },
   ];
 
   const categoryOptions = [
@@ -71,7 +72,7 @@ export default function ModelFilterForm({ onFilterChange }) {
       ...provided,
       borderRadius: "8px",
       boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-      zIndex: 1000,
+      zIndex: 9999,
     }),
     option: (provided, state) => ({
       ...provided,
@@ -149,6 +150,12 @@ export default function ModelFilterForm({ onFilterChange }) {
             <span className="stat-label">Flagged:</span>
             <span className="stat-value text-warning">
               {analyticsLoading ? "..." : analytics?.models?.flagged || 0}
+            </span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Delisted:</span>
+            <span className="stat-value text-danger">
+              {analyticsLoading ? "..." : analytics?.models?.delisted || 0}
             </span>
           </div>
         </div>

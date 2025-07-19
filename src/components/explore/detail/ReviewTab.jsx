@@ -1,6 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useParams } from "next/navigation"
+import { useAccount, useWriteContract } from "wagmi"
+import { waitForTransactionReceipt } from "@wagmi/core"
+import { toast } from "react-hot-toast"
+import { useQueryClient } from "@tanstack/react-query"
 import Image from "next/image"
 import { getReviewTypeText, getSeverityText, getSeverityBadge, formatDate, formatAddress, getStatusText } from "../../../utils/utils"
 import { CiCalendar as CalendarIcon } from "react-icons/ci"
@@ -8,18 +13,119 @@ import { FaThumbsUp as ThumbsUpIcon } from "react-icons/fa"
 import { FaThumbsDown as ThumbsDownIcon } from "react-icons/fa"
 import { FaRegCommentDots as CommentIcon } from "react-icons/fa"
 import { FaPlus as PlusIcon } from "react-icons/fa"
+import { FaCheck as CheckIcon } from "react-icons/fa"
 import ReviewForm from "./ReviewForm"
+import { MODEL_REGISTRY_CONTRACT } from "../../../constants"
+import { pinata } from "../../../utils/pinata"
+import { config } from "../../../wagmi"
 
 export default function ReviewTab({ modelData }) {
+  const params = useParams()
+  const modelId = params.id
   const [showReviewForm, setShowReviewForm] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { isConnected, address } = useAccount()
+  const { writeContractAsync } = useWriteContract()
+  const queryClient = useQueryClient()
 
-  // Check if model is under review
   const isUnderReview = getStatusText(modelData.status, modelData.proposals) === "Under Review"
 
-  const handleSubmitReview = (reviewData) => {
-    // TODO: Implement review submission logic
-    alert("Review submission will be implemented later!")
-    setShowReviewForm(false)
+  const hasUserReviewed = modelData.reviews?.some(review => 
+    review.reviewer?.owner?.toLowerCase() === address?.toLowerCase()
+  )
+
+  const handleSubmitReview = async (reviewData) => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet first")
+      return
+    }
+
+    if (!reviewData.prompt.trim()) {
+      toast.error("Prompt is required")
+      return
+    }
+
+    if (!reviewData.output.trim()) {
+      toast.error("Model output is required")
+      return
+    }
+
+    if (!reviewData.comment.trim()) {
+      toast.error("Comment is required")
+      return
+    }
+
+    if (reviewData.reviewType === 1 && !reviewData.severity) {
+      toast.error("Severity level is required for negative reviews")
+      return
+    }
+
+    setIsSubmitting(true)
+
+    const promise = async () => {
+      const keyRequest = await fetch("/api/key")
+      const keyData = await keyRequest.json()
+
+      let screenshotHash = null
+      if (reviewData.screenshot) {
+        const screenshotUpload = await pinata.upload.file(reviewData.screenshot).key(keyData.JWT)
+        if (!screenshotUpload.IpfsHash) {
+          throw new Error("Failed to upload screenshot")
+        }
+        screenshotHash = screenshotUpload.IpfsHash
+      }
+
+      const reviewMetadata = {
+        prompt: reviewData.prompt,
+        output: reviewData.output,
+        comment: reviewData.comment,
+        screenshotUrl: screenshotHash ? `https://gateway.pinata.cloud/ipfs/${screenshotHash}` : null,
+        timestamp: Date.now(),
+        reviewer: address
+      }
+
+      const keyRequest2 = await fetch("/api/key")
+      const keyData2 = await keyRequest2.json()
+
+      const metadataUpload = await pinata.upload.json(reviewMetadata).key(keyData2.JWT)
+      if (!metadataUpload.IpfsHash) {
+        throw new Error("Failed to upload review metadata")
+      }
+
+      const ipfsHash = metadataUpload.IpfsHash
+
+      const result = await writeContractAsync({
+        ...MODEL_REGISTRY_CONTRACT,
+        functionName: 'submitReview',
+        args: [
+          modelId,
+          ipfsHash,
+          reviewData.reviewType, // 0 for positive, 1 for negative
+          reviewData.severity // 0 for positive, 1-5 for negative
+        ],
+        account: address,
+      })
+
+      await waitForTransactionReceipt(config, {
+        hash: result,
+      })
+
+      await queryClient.invalidateQueries(['model', modelId])
+      
+      setShowReviewForm(false)
+      return result
+    }
+
+    toast.promise(promise(), {
+      loading: 'Submitting your review...',
+      success: 'Review submitted successfully!',
+      error: (err) => {
+        console.error("Review submission error:", err)
+        return `Error: ${err.message || 'Something went wrong'}`
+      }
+    }).finally(() => {
+      setIsSubmitting(false)
+    })
   }
 
   const handleCancelReview = () => {
@@ -28,25 +134,37 @@ export default function ReviewTab({ modelData }) {
 
   return (
     <div className="tab-pane fade show active">
-      {/* Add Review Button - Now visible for all model statuses */}
-      <div className="mb-4 d-flex justify-content-end">
-        {!showReviewForm ? (
-          <button
-            className="btn btn-primary px-3 py-2 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
-            onClick={() => setShowReviewForm(true)}
-          >
-            <PlusIcon className="me-2" />
-            Add Your Review
-          </button>
-        ) : (
-          <ReviewForm 
-            onSubmit={handleSubmitReview}
-            onCancel={handleCancelReview}
-          />
-        )}
-      </div>
+      {isUnderReview && (
+        <div className="mb-4 d-flex justify-content-end">
+          {!showReviewForm ? (
+            hasUserReviewed ? (
+              <button
+                className="btn btn-success px-3 py-2 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
+                disabled
+              >
+                <CheckIcon className="me-2" />
+                Already Reviewed
+              </button>
+            ) : (
+              <button
+                className="btn btn-primary px-3 py-2 rounded-pill shadow-sm fw-semibold d-flex align-items-center"
+                onClick={() => setShowReviewForm(true)}
+                disabled={isSubmitting}
+              >
+                <PlusIcon className="me-2" />
+                Add Your Review
+              </button>
+            )
+          ) : (
+            <ReviewForm 
+              onSubmit={handleSubmitReview}
+              onCancel={handleCancelReview}
+              isSubmitting={isSubmitting}
+            />
+          )}
+        </div>
+      )}
 
-      {/* Existing Reviews */}
       {modelData.reviews && modelData.reviews.length > 0 ? (
         <div className="row g-4">
           {modelData.reviews.map((review, index) => (

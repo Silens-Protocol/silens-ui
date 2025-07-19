@@ -42,9 +42,14 @@ export default function ExploreModels({ filters }) {
         case "flagged":
           params.status = 2;
           break;
+        case "delisted":
+          params.status = 3;
+          break;
         default:
           break;
       }
+    } else {
+      params.excludeStatus = 3;
     }
 
     return params;
@@ -58,6 +63,24 @@ export default function ExploreModels({ filters }) {
 
   const loadMore = () => {
     setPage(page + 1);
+  };
+
+  const sortModelsByStatus = (models) => {
+    return models.sort((a, b) => {
+      if (filters?.status && filters.status !== "all") {
+        return 0;
+      }
+      
+      const statusPriority = { 1: 0, 0: 1, 2: 2 };
+      const priorityA = statusPriority[a.status] ?? 3;
+      const priorityB = statusPriority[b.status] ?? 3;
+      
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      return new Date(parseInt(b.createdAt) * 1000) - new Date(parseInt(a.createdAt) * 1000);
+    });
   };
 
   const getStatusBadge = (model) => {
@@ -102,6 +125,13 @@ export default function ExploreModels({ filters }) {
             Flagged
           </span>
         );
+      case 3:
+        return (
+          <span className="badge bg-soft-danger text-danger rounded-pill">
+            <FiAlertTriangle className="me-1" style={{ fontSize: "12px" }} />{" "}
+            Delisted
+          </span>
+        );
       default:
         return null;
     }
@@ -134,7 +164,7 @@ export default function ExploreModels({ filters }) {
     );
   }
 
-  const allModels = data?.models || [];
+  const allModels = sortModelsByStatus(data?.models || []);
   const startIndex = (page - 1) * itemsPerPage;
   const models = allModels.slice(startIndex, startIndex + itemsPerPage);
   const hasMore = allModels.length >= page * itemsPerPage;

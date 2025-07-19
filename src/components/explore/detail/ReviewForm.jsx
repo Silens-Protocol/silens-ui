@@ -4,13 +4,17 @@ import { useState } from "react"
 import { FaRegCommentDots as CommentIcon } from "react-icons/fa"
 import { FaTimes as CloseIcon } from "react-icons/fa"
 import { FaImage as ImageIcon } from "react-icons/fa"
+import { FaThumbsUp as ThumbsUpIcon } from "react-icons/fa"
+import { FaThumbsDown as ThumbsDownIcon } from "react-icons/fa"
 
-export default function ReviewForm({ onSubmit, onCancel }) {
+export default function ReviewForm({ onSubmit, onCancel, isSubmitting = false }) {
   const [reviewData, setReviewData] = useState({
     prompt: "",
     output: "",
     comment: "",
-    screenshot: null
+    screenshot: null,
+    reviewType: 0, // 0 for positive, 1 for negative
+    severity: 0 // 0 for positive, 1-5 for negative
   })
   const [screenshotPreview, setScreenshotPreview] = useState(null)
 
@@ -19,6 +23,14 @@ export default function ReviewForm({ onSubmit, onCancel }) {
     setReviewData(prev => ({
       ...prev,
       [name]: value
+    }))
+  }
+
+  const handleReviewTypeChange = (type) => {
+    setReviewData(prev => ({
+      ...prev,
+      reviewType: type,
+      severity: type === 0 ? 0 : prev.severity || 1
     }))
   }
 
@@ -64,7 +76,9 @@ export default function ReviewForm({ onSubmit, onCancel }) {
       prompt: "",
       output: "",
       comment: "",
-      screenshot: null
+      screenshot: null,
+      reviewType: 0,
+      severity: 0
     })
     setScreenshotPreview(null)
     onCancel()
@@ -78,11 +92,66 @@ export default function ReviewForm({ onSubmit, onCancel }) {
             <CommentIcon className="me-2 text-primary" />
             Submit Your Review
           </h5>
+          <button
+            className="btn btn-outline-secondary btn-sm rounded-circle"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+          >
+            <CloseIcon />
+          </button>
         </div>
       </div>
       <div className="card-body p-4">
         <form onSubmit={handleSubmit}>
           <div className="row g-4">
+            <div className="col-12">
+              <label className="form-label fw-semibold text-dark mb-2">
+                Review Type <span className="text-danger">*</span>
+              </label>
+              <div className="d-flex gap-3">
+                <button
+                  type="button"
+                  className={`btn ${reviewData.reviewType === 0 ? 'btn-success' : 'btn-outline-success'} px-4 py-2 rounded-pill fw-semibold`}
+                  onClick={() => handleReviewTypeChange(0)}
+                  disabled={isSubmitting}
+                >
+                  <ThumbsUpIcon className="me-2" />
+                  Positive Review
+                </button>
+                <button
+                  type="button"
+                  className={`btn ${reviewData.reviewType === 1 ? 'btn-danger' : 'btn-outline-danger'} px-4 py-2 rounded-pill fw-semibold`}
+                  onClick={() => handleReviewTypeChange(1)}
+                  disabled={isSubmitting}
+                >
+                  <ThumbsDownIcon className="me-2" />
+                  Negative Review
+                </button>
+              </div>
+            </div>
+
+            {reviewData.reviewType === 1 && (
+              <div className="col-12">
+                <label className="form-label fw-semibold text-dark mb-2">
+                  Severity Level <span className="text-danger">*</span>
+                </label>
+                <select
+                  className="form-control border-2"
+                  name="severity"
+                  value={reviewData.severity}
+                  onChange={handleInputChange}
+                  required={reviewData.reviewType === 1}
+                >
+                  <option value="">Select severity level</option>
+                  <option value="1">Low</option>
+                  <option value="2">Medium</option>
+                  <option value="3">High</option>
+                  <option value="4">Critical</option>
+                  <option value="5">Severe</option>
+                </select>
+              </div>
+            )}
+
             <div className="col-12">
               <label className="form-label fw-semibold text-dark mb-2">
                 Prompt <span className="text-danger">*</span>
@@ -95,6 +164,7 @@ export default function ReviewForm({ onSubmit, onCancel }) {
                 placeholder="Enter the prompt you used to test the model..."
                 rows="3"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -110,6 +180,7 @@ export default function ReviewForm({ onSubmit, onCancel }) {
                 placeholder="Enter the output/response from the model..."
                 rows="4"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -125,6 +196,7 @@ export default function ReviewForm({ onSubmit, onCancel }) {
                     onChange={handleScreenshotChange}
                     className="file-input"
                     id="screenshot-upload"
+                    disabled={isSubmitting}
                   />
                   <label htmlFor="screenshot-upload" className="upload-label">
                     <div className="upload-content">
@@ -148,6 +220,7 @@ export default function ReviewForm({ onSubmit, onCancel }) {
                     type="button"
                     className="remove-screenshot"
                     onClick={removeScreenshot}
+                    disabled={isSubmitting}
                   >
                     <CloseIcon />
                   </button>
@@ -167,22 +240,34 @@ export default function ReviewForm({ onSubmit, onCancel }) {
                 placeholder="Share your thoughts about the model's performance, safety, and any concerns..."
                 rows="4"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
-            <div className="col-12 d-flex justify-content-end">
+            <div className="col-12">
               <div className="d-flex gap-3">
                 <button
                   type="submit"
                   className="btn btn-primary px-4 py-2 rounded-pill fw-semibold"
+                  disabled={isSubmitting}
                 >
-                  <CommentIcon className="me-2" />
-                  Submit Review
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <CommentIcon className="me-2" />
+                      Submit Review
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"
                   className="btn btn-outline-secondary px-4 py-2 rounded-pill"
                   onClick={handleCancel}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
