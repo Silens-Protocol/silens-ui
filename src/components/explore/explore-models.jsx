@@ -182,7 +182,7 @@ export default function ExploreModels({ filters }) {
           return (
             <div className="col mt-4 pt-2" key={model.id} onClick={() => router.push(`/explore/${model.id}`)}>
               <div className="model-card h-100">      
-                <div className="status-header">
+                <div className="status-header" style={{ zIndex: 1 }}>
                   {getStatusBadge(model)}
                   <div className="score-badge">
                     <FiAward />
